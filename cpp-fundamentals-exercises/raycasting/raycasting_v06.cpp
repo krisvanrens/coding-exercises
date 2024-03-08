@@ -1,0 +1,217 @@
+extern "C" {
+#include <curses.h>
+}
+
+#include <clocale>
+#include <cmath>
+#include <cstdlib>
+#include <exception>
+#include <iostream>
+#include <numbers>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <utility>
+
+constexpr float PI        = std::numbers::pi_v<float>;
+constexpr float PI2       = PI * 2.0f;
+constexpr float FOV       = PI / 3.0f; // Field of view in [radians].
+constexpr float MAX_DEPTH = 15.0f;     // Maximum visible depth in [map block units].
+
+/// Wrapper around the default 'stdscr' window in ncurses.
+struct Screen {
+private:
+  WINDOW* const window_;
+
+public:
+  enum class Key { Up, Down, Left, Right, Quit, Other };
+
+  Screen()
+    : window_{initscr()}
+    , width{static_cast<unsigned int>(getmaxx(stdscr))}
+    , height{static_cast<unsigned int>(getmaxy(stdscr))} {
+    cbreak();    // Break on character input (i.e. don't wait for enter).
+    noecho();    // Don't echo input keys.
+    curs_set(0); // Disable cursor.
+
+    // Uncomment this line to enable delay-less operation of ncurses. Otherwise ncurses will blocking-wait for key input.
+    // nodelay(stdscr, TRUE);
+  }
+
+  ~Screen() {
+    endwin();
+  }
+
+  /// Write console buffer to screen.
+  void update() {
+    refresh();
+  }
+
+  /// Print string to specific coordinates in console buffer.
+  void print(unsigned int x, unsigned int y, std::string_view s) const {
+    mvaddstr(static_cast<int>(y), static_cast<int>(x), s.data());
+  }
+
+  /// Capture input key.
+  [[nodiscard]] Key get_key() const {
+    switch (getch()) {
+    case 'w': return Key::Up;
+    case 's': return Key::Down;
+    case 'a': return Key::Left;
+    case 'd': return Key::Right;
+    case 'q': return Key::Quit;
+    default: return Key::Other;
+    }
+  }
+
+  const unsigned int width;
+  const unsigned int height;
+};
+
+/// Abstraction over a rectangular ASCII art level map definition.
+struct LevelMap {
+  /// Constructor. Takes an ASCII art map definition where '#' are walls.
+  explicit LevelMap(std::string&& format_)
+    : format{std::move(format_)}
+    , width{static_cast<unsigned int>(format.find_first_of('\n'))}
+    , height{static_cast<unsigned int>(format.find_last_of('\n')) / width} {
+    if (width < 3 || height < 3) {
+      throw std::invalid_argument{"invalid level dimensions -- must at least be 3x3 units"};
+    }
+
+    if ((width + 1) * height != format.size()) {
+      throw std::invalid_argument{"invalid level dimensions -- must be rectangular"};
+    }
+  }
+
+  /// Check if a coordinate on the map is out-of-bounds (OOB).
+  [[nodiscard]] bool is_oob(int x, int y) const {
+    return x < 0 || y < 0 || x >= static_cast<int>(width) || y >= static_cast<int>(height);
+  }
+
+  /// Check if a coordinate on the map is a wall element.
+  [[nodiscard]] bool is_wall(int x, int y) const {
+    return !is_oob(x, y) && format[((width + 1) * static_cast<unsigned int>(y)) + static_cast<unsigned int>(x)] == '#';
+  }
+
+  const std::string  format;
+  const unsigned int width;
+  const unsigned int height;
+};
+
+int main() {
+  try {
+    if (std::setlocale(LC_ALL, "") == nullptr) { // Required for Unicode support.
+      throw std::runtime_error{"failed to set locale"};
+    }
+
+    const LevelMap MAP{"####################\n"
+                       "#   ##             #\n"
+                       "#   ##             #\n"
+                       "#                  #\n"
+                       "#         ##########\n"
+                       "#                  #\n"
+                       "######             #\n"
+                       "#    #      ###    #\n"
+                       "#    #      ###    #\n"
+                       "#                  #\n"
+                       "#                  #\n"
+                       "####################\n"};
+
+    Screen s;
+
+    float player_x     = 7.0f;
+    float player_y     = 1.0f;
+    float player_angle = 0.0f;
+
+    while (true) {
+      for (unsigned int x = 0; x < s.width; x++) {
+        const float ray_angle = player_angle - (FOV / 2) + (static_cast<float>(x) * FOV) / static_cast<float>(s.width);
+        const float norm_x    = std::sin(ray_angle);
+        const float norm_y    = std::cos(ray_angle);
+
+        float dist_wall = 0.0f;
+        bool  hit       = false; // Indicates 'ray hit'.
+        while (!hit && (dist_wall < MAX_DEPTH)) {
+          dist_wall += 0.1f;
+
+          const int xx = static_cast<int>(std::round(player_x + norm_x * dist_wall));
+          const int yy = static_cast<int>(std::round(player_y + norm_y * dist_wall));
+
+          hit = MAP.is_oob(xx, yy) || MAP.is_wall(xx, yy);
+        }
+
+        const long dist_ceiling = static_cast<long>(std::round((static_cast<float>(s.height) / 2.0f) - (static_cast<float>(s.height) / dist_wall)));
+        const long dist_floor   = static_cast<long>(std::round(s.height - dist_ceiling));
+
+        for (unsigned int y = 0; y < s.height; y++) {
+          if (y < dist_ceiling) {
+            s.print(x, y, " "); // Ceiling.
+          } else if (y > dist_ceiling && y <= dist_floor) {
+            s.print(x, y, [&] { // Wall.
+              if (dist_wall < (MAX_DEPTH * 0.25f)) {
+                return "\u2588";
+              } else if (dist_wall < (MAX_DEPTH * 0.5f)) {
+                return "\u2593";
+              } else if (dist_wall < (MAX_DEPTH * 0.75f)) {
+                return "\u2592";
+              } else if (dist_wall < MAX_DEPTH) {
+                return "\u2591";
+              } else {
+                return " ";
+              }
+            }());
+          } else {
+            const float d = 1.0f - ((static_cast<float>(y) - (static_cast<float>(s.height) / 2.0f)) / (static_cast<float>(s.height) / 2.0f));
+            s.print(x, y, [&] { // Floor.
+              if (d < 0.25f) {
+                return "#";
+              } else if (d < 0.5f) {
+                return "x";
+              } else if (d < 0.75f) {
+                return "-";
+              } else if (d < 0.9f) {
+                return ".";
+              } else {
+                return " ";
+              }
+            }());
+          }
+        }
+      }
+
+      s.update();
+
+      switch (s.get_key()) {
+        using enum Screen::Key;
+      case Up:
+        player_x += 0.1f * std::sin(player_angle);
+        player_y += 0.1f * std::cos(player_angle);
+
+        // Collision detection: undo the previous operation.
+        if (MAP.is_wall(static_cast<int>(player_x), static_cast<int>(player_y))) {
+          player_x -= 0.1f * std::sin(player_angle);
+          player_y -= 0.1f * std::cos(player_angle);
+        }
+        break;
+      case Down:
+        player_x -= 0.1f * std::sin(player_angle);
+        player_y -= 0.1f * std::cos(player_angle);
+
+        // Collision detection: undo the previous operation.
+        if (MAP.is_wall(static_cast<int>(player_x), static_cast<int>(player_y))) {
+          player_x += 0.1f * std::sin(player_angle);
+          player_y += 0.1f * std::cos(player_angle);
+        }
+        break;
+      case Left: player_angle = std::fmod(player_angle - 0.1f + PI2, PI2); break;
+      case Right: player_angle = std::fmod(player_angle + 0.1f, PI2); break;
+      case Other: break;
+      case Quit: return EXIT_SUCCESS;
+      }
+    }
+  } catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << '\n';
+    return EXIT_FAILURE;
+  }
+}
