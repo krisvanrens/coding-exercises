@@ -20,3 +20,8 @@ Build a simple [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Rev
 - [Solution code README](https://krisvanrens.github.io/coding-exercises/cpp-fundamentals-exercises/rpn-calculator)
 - [Solution code](https://github.com/krisvanrens/coding-exercises/tree/main/cpp-fundamentals-exercises/rpn-calculator)
 
+## More info / contact
+
+If you have any remarks, questions etc. reach out to me!
+Find my contact info [here](https://vanrens.org).
+
