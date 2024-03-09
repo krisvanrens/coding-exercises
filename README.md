@@ -23,6 +23,13 @@ Build a simple [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Rev
 - [Solution code README](https://krisvanrens.github.io/coding-exercises/cpp-fundamentals-exercises/rpn-calculator)
 - [Solution code](https://github.com/krisvanrens/coding-exercises/tree/main/cpp-fundamentals-exercises/rpn-calculator)
 
+## Exploring Rust (High Tech Institute)
+
+The [Exploring Rust training](https://www.hightechinstitute.nl/courses/exploring-rust/) is an intensive, short introduction training to Rust for experienced software engineers.
+The exercise code and intermediate steps have been tuned to the level of the course.
+
+*Exercises, slides and solution code are W.I.P. -- check back later!*
+
 ## More info / contact
 
 If you have any remarks, questions etc. reach out to me!
