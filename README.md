@@ -5,7 +5,6 @@ Coding exercises in C++ and Rust.
 ## C++ Fundamentals (High Tech Institute)
 
 The [C++ Fundamentals training](https://www.hightechinstitute.nl/courses/c-fundamentals/) is a comprehensive four-day training on C++20 for software engineers new to C++.
-
 The exercise code and intermediate steps have been tuned to the level of the course.
 
 ### Raycasting
