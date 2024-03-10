@@ -33,7 +33,7 @@ public:
     : message_{message} {
   }
 
-  const char* what() const noexcept override {
+  [[nodiscard]] const char* what() const noexcept override {
     return message_.c_str();
   }
 
@@ -63,7 +63,7 @@ struct Operand {
   ///
   [[nodiscard]] long parse() const {
     if (!value.empty()) {
-      long v;
+      long v{};
       const auto [ptr, error] = std::from_chars(value.data(), value.data() + value.size(), v);
       if (error == std::errc{}) {
         return v;

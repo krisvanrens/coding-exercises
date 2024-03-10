@@ -42,7 +42,7 @@ public:
     : message_{message} {
   }
 
-  const char* what() const noexcept override {
+  [[nodiscard]] const char* what() const noexcept override {
     return message_.c_str();
   }
 
@@ -94,7 +94,7 @@ struct Operand {
       //        which this code is compiled, it will provide 80 bits or even 128 bits extended floating-point precision.
       //        For MSVC this may not even have any effect and will still use 64 bits, like 'double'.
       //
-      long double v;
+      long double v{};
       const auto [ptr, error] = std::from_chars(value.data(), value.data() + value.size(), v);
       if (error == std::errc{}) {
         // Check for invalid cross-type parse requests.
