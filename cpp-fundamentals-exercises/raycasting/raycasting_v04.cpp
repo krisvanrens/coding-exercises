@@ -38,8 +38,8 @@ int main() {
 
   initscr();
 
-  const unsigned int SCREEN_WIDTH  = static_cast<unsigned int>(getmaxx(stdscr));
-  const unsigned int SCREEN_HEIGHT = static_cast<unsigned int>(getmaxy(stdscr));
+  const auto SCREEN_WIDTH  = static_cast<unsigned int>(getmaxx(stdscr));
+  const auto SCREEN_HEIGHT = static_cast<unsigned int>(getmaxy(stdscr));
 
   cbreak();    // Break on character input (i.e. don't wait for enter).
   noecho();    // Don't echo input keys.
@@ -67,7 +67,7 @@ int main() {
         const int yy = static_cast<int>(std::round(player_y + norm_y * dist_wall));
 
         hit = xx < 0 || yy < 0 || xx >= static_cast<int>(MAP_WIDTH) || yy >= static_cast<int>(MAP_HEIGHT)
-              || MAP[(MAP_WIDTH * static_cast<unsigned int>(yy)) + static_cast<unsigned int>(xx)] == '#';
+              || MAP.at((MAP_WIDTH * static_cast<unsigned int>(yy)) + static_cast<unsigned int>(xx)) == '#';
       }
 
       const long dist_ceiling = static_cast<long>(std::round((static_cast<float>(SCREEN_HEIGHT) / 2.0f) - (static_cast<float>(SCREEN_HEIGHT) / dist_wall)));
@@ -118,7 +118,7 @@ int main() {
 
       // Collision detection: undo the previous operation.
       if ((player_x > 0.0f) && (player_y > 0.0f) && (static_cast<unsigned int>(player_x) <= MAP_WIDTH) && (static_cast<unsigned int>(player_y) <= MAP_HEIGHT)
-          && MAP[(MAP_WIDTH * static_cast<unsigned int>(player_y)) + static_cast<unsigned int>(player_x)] == '#') {
+          && MAP.at((MAP_WIDTH * static_cast<unsigned int>(player_y)) + static_cast<unsigned int>(player_x)) == '#') {
         player_x -= 0.1f * std::sin(player_angle);
         player_y -= 0.1f * std::cos(player_angle);
       }
@@ -129,7 +129,7 @@ int main() {
 
       // Collision detection: undo the previous operation.
       if ((player_x > 0.0f) && (player_y > 0.0f) && (static_cast<unsigned int>(player_x) <= MAP_WIDTH) && (static_cast<unsigned int>(player_y) <= MAP_HEIGHT)
-          && MAP[(MAP_WIDTH * static_cast<unsigned int>(player_y)) + static_cast<unsigned int>(player_x)] == '#') {
+          && MAP.at((MAP_WIDTH * static_cast<unsigned int>(player_y)) + static_cast<unsigned int>(player_x)) == '#') {
         player_x += 0.1f * std::sin(player_angle);
         player_y += 0.1f * std::cos(player_angle);
       }

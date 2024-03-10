@@ -14,8 +14,8 @@ int main() {
 
   initscr();
 
-  const unsigned int SCREEN_WIDTH  = static_cast<unsigned int>(getmaxx(stdscr));
-  const unsigned int SCREEN_HEIGHT = static_cast<unsigned int>(getmaxy(stdscr));
+  const auto SCREEN_WIDTH  = static_cast<unsigned int>(getmaxx(stdscr));
+  const auto SCREEN_HEIGHT = static_cast<unsigned int>(getmaxy(stdscr));
 
   cbreak();    // Break on character input (i.e. don't wait for enter).
   noecho();    // Don't echo input keys.

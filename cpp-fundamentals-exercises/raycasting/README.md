@@ -406,27 +406,36 @@ Some remarks on the code changes for this version:
 Why or why not?
 Try it!
 
+### Version 15: Tightening resource handle `Screen`
+
+The `Screen` structure is a resource handle to a stationary, unique resource: the `stdscr` window of ncurses.
+Even though the `const`-ness of some of the members dictates the `Screen` type behavior (copy/move restrictions are transmissible), it's safer to tighten and guard the behavior of `Screen` explicitly.
+
+First we request a default definition of the move constructor, and we undeclare the move assignment operator (through `= delete`).
+Then we also add some build-time tests based on `static_assert` to guard the behaviour of the `Screen` type.
+
 ## Number of machine instructions per executable
 
 The following table shows the number of machine instructions per executable version:
 
 | Executable | Number of instructions |
 |:----------:|:-----------------------|
-| raycasting_v00 | 221  |
-| raycasting_v01 | 483  |
-| raycasting_v02 | 599  |
-| raycasting_v03 | 1030 |
-| raycasting_v04 | 671  |
-| raycasting_v05 | 679  |
-| raycasting_v06 | 992  |
-| raycasting_v07 | 993  |
-| raycasting_v08 | 1529 |
-| raycasting_v09 | 1565 |
-| raycasting_v10 | 1642 |
-| raycasting_v11 | 1751 |
-| raycasting_v12 | 1933 |
-| raycasting_v13 | 1914 |
-| raycasting_v14 | 1909 |
+| raycasting_v00 | 221 |
+| raycasting_v01 | 490 |
+| raycasting_v02 | 600 |
+| raycasting_v03 | 1047 |
+| raycasting_v04 | 689 |
+| raycasting_v05 | 758 |
+| raycasting_v06 | 1043 |
+| raycasting_v07 | 1034 |
+| raycasting_v08 | 1577 |
+| raycasting_v09 | 1611 |
+| raycasting_v10 | 1679 |
+| raycasting_v11 | 1802 |
+| raycasting_v12 | 1972 |
+| raycasting_v13 | 1947 |
+| raycasting_v14 | 1942 |
+| raycasting_v15 | 1942 |
 
 The compiler used was GCC-12.3 for an AMD Ryzen 7 PRO 4750 running Ubuntu Linux 22.04.3.
 

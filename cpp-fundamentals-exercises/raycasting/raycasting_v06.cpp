@@ -21,7 +21,7 @@ constexpr float MAX_DEPTH = 15.0f;     // Maximum visible depth in [map block un
 /// Wrapper around the default 'stdscr' window in ncurses.
 struct Screen {
 private:
-  WINDOW* const window_;
+  const WINDOW* const window_;
 
 public:
   enum class Key { Up, Down, Left, Right, Quit, Other };
@@ -33,6 +33,10 @@ public:
     cbreak();    // Break on character input (i.e. don't wait for enter).
     noecho();    // Don't echo input keys.
     curs_set(0); // Disable cursor.
+
+    if (!window_) {
+      throw std::runtime_error{"failed to initialize screen"};
+    }
 
     // Uncomment this line to enable delay-less operation of ncurses. Otherwise ncurses will blocking-wait for key input.
     // nodelay(stdscr, TRUE);
@@ -91,7 +95,7 @@ struct LevelMap {
 
   /// Check if a coordinate on the map is a wall element.
   [[nodiscard]] bool is_wall(int x, int y) const {
-    return !is_oob(x, y) && format[((width + 1) * static_cast<unsigned int>(y)) + static_cast<unsigned int>(x)] == '#';
+    return !is_oob(x, y) && format.at(((width + 1) * static_cast<unsigned int>(y)) + static_cast<unsigned int>(x)) == '#';
   }
 
   const std::string  format;

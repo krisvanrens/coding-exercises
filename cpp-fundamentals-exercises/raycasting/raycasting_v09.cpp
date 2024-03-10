@@ -23,7 +23,7 @@ constexpr float MAX_DEPTH = 15.0f;     // Maximum visible depth in [map block un
 /// Wrapper around the default 'stdscr' window in ncurses.
 struct Screen {
 private:
-  WINDOW* const window_;
+  const WINDOW* const window_;
 
 public:
   enum class Key { Up, Down, Left, Right, Quit, Other };
@@ -35,6 +35,10 @@ public:
     cbreak();    // Break on character input (i.e. don't wait for enter).
     noecho();    // Don't echo input keys.
     curs_set(0); // Disable cursor.
+
+    if (!window_) {
+      throw std::runtime_error{"failed to initialize screen"};
+    }
 
     // Uncomment this line to enable delay-less operation of ncurses. Otherwise ncurses will blocking-wait for key input.
     // nodelay(stdscr, TRUE);
@@ -93,7 +97,7 @@ struct LevelMap {
 
   /// Check if a coordinate on the map is a wall element.
   [[nodiscard]] bool is_wall(int x, int y) const {
-    return !is_oob(x, y) && format[((width + 1) * static_cast<unsigned int>(y)) + static_cast<unsigned int>(x)] == '#';
+    return !is_oob(x, y) && format.at(((width + 1) * static_cast<unsigned int>(y)) + static_cast<unsigned int>(x)) == '#';
   }
 
   const std::string  format;
@@ -103,10 +107,10 @@ struct LevelMap {
 
 /// Player state manager.
 struct Player {
-  Player(float x, float y, float angle)
+  Player(float x, float y, float a)
     : x{x}
     , y{y}
-    , angle{angle} {
+    , angle{a} {
   }
 
   void move_up() {
@@ -181,16 +185,16 @@ int main() {
 
             for (unsigned int tx = 0; tx < 2; tx++) {
               for (unsigned int ty = 0; ty < 2; ty++) {
-                const float vx       = static_cast<float>(xx + tx) - p.x;
-                const float vy       = static_cast<float>(yy + ty) - p.y;
-                const float d        = std::sqrt(vx * vx + vy * vy);
-                corners[ty * 2 + tx] = std::make_pair(d, (norm_x * vx / d) + (norm_y * vy / d));
+                const float vx          = static_cast<float>(xx + tx) - p.x;
+                const float vy          = static_cast<float>(yy + ty) - p.y;
+                const float d           = std::sqrt(vx * vx + vy * vy);
+                corners.at(ty * 2 + tx) = std::make_pair(d, (norm_x * vx / d) + (norm_y * vy / d));
               }
             }
 
             std::ranges::sort(corners, [](const auto& a, const auto& b) { return a.first < b.first; });
 
-            bound = (std::acos(corners[0].second) < 0.01f) || (std::acos(corners[1].second) < 0.01f);
+            bound = (std::acos(corners.at(0).second) < 0.01f) || (std::acos(corners.at(1).second) < 0.01f);
           }
         }
 
@@ -198,7 +202,7 @@ int main() {
         const long dist_floor   = static_cast<long>(std::round(s.height - dist_ceiling));
 
         for (unsigned int y = 0; y < s.height; y++) {
-          if (!(x < MAP.width && y < MAP.height)) {
+          if (x >= MAP.width || y >= MAP.height) {
             if (y < dist_ceiling) {
               s.print(x, y, " "); // Ceiling.
             } else if (y > dist_ceiling && y <= dist_floor) {

@@ -9,23 +9,75 @@ extern "C" {
 #include <chrono>
 #include <clocale>
 #include <cmath>
+#include <concepts>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
 #include <numbers>
-#include <numeric>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
+
+namespace helpers {
+
+template<std::size_t Offset, std::size_t... Is>
+constexpr std::index_sequence<(Offset + Is)...> add_offset(std::index_sequence<Is...>) {
+  return {};
+}
+
+template<std::size_t Offset, std::size_t N>
+constexpr auto make_index_sequence_with_offset() {
+  return add_offset<Offset>(std::make_index_sequence<N>{});
+}
+
+/// Generate an array with offset indexes as values, at compile-time.
+template<typename T, std::size_t N, std::size_t Offset>
+constexpr auto make_array_with_indices() {
+  return []<std::size_t... Is>(std::index_sequence<Is...>) {
+    return std::array<T, N>{Is...};
+  }
+  (make_index_sequence_with_offset<Offset, N>());
+}
+
+} // namespace helpers
 
 constexpr int          WALL_COLOR_X          = 10; // Black/background.
 constexpr unsigned int NUMBER_OF_WALL_SHADES = 16;
+constexpr auto         WALL_SHADES           = helpers::make_array_with_indices<int, NUMBER_OF_WALL_SHADES, 11>(); // 11, 12, 13, ...
 
 constexpr float PI        = std::numbers::pi_v<float>;
 constexpr float PI2       = PI * 2.0f;
 constexpr float FOV       = PI / 3.0f; // Field of view in [radians].
 constexpr float MAX_DEPTH = 15.0f;     // Maximum visible depth in [map block units].
+
+/// Any arithmetic type (scalar or floating-point).
+template<typename T>
+concept arithmetic = std::is_arithmetic_v<T>;
+
+/// 2D position.
+template<arithmetic T>
+struct Position {
+  constexpr Position(T x, T y)
+    : x{x}
+    , y{y} {
+  }
+
+  template<arithmetic U>
+  constexpr Position(U x, U y)
+    : x{static_cast<T>(x)}
+    , y{static_cast<T>(y)} {
+  }
+
+  template<arithmetic U>
+  constexpr Position(const Position<U>& p)
+    : x{static_cast<T>(p.x)}
+    , y{static_cast<T>(p.y)} {
+  }
+
+  T x, y;
+};
 
 /// Wrapper around the default 'stdscr' window in ncurses.
 struct Screen {
@@ -39,8 +91,6 @@ public:
     : window_{initscr()}
     , width{static_cast<unsigned int>(getmaxx(stdscr))}
     , height{static_cast<unsigned int>(getmaxy(stdscr))} {
-    std::iota(WALL_SHADES.begin(), WALL_SHADES.end(), WALL_COLOR_X + 1); // Start after background color.
-
     cbreak();    // Break on character input (i.e. don't wait for enter).
     noecho();    // Don't echo input keys.
     curs_set(0); // Disable cursor.
@@ -78,14 +128,17 @@ public:
     endwin();
   }
 
+  Screen(Screen&&) noexcept            = default;
+  Screen& operator=(Screen&&) noexcept = delete;
+
   /// Write console buffer to screen.
   void update() {
     refresh();
   }
 
   /// Print string to specific coordinates in console buffer.
-  void print(unsigned int x, unsigned int y, std::string_view s) const {
-    mvaddstr(static_cast<int>(y), static_cast<int>(x), s.data());
+  void print(const Position<int>& p, std::string_view s) const {
+    mvaddstr(p.y, p.x, s.data());
   }
 
   /// Capture input key.
@@ -100,11 +153,17 @@ public:
     }
   }
 
-  std::array<int, 16> WALL_SHADES;
-
   const unsigned int width;
   const unsigned int height;
 };
+
+// Screen should be stationary resource handle (tests will fail at build time).
+static_assert(std::is_nothrow_destructible_v<Screen>);
+static_assert(std::is_default_constructible_v<Screen>);
+static_assert(!std::is_copy_constructible_v<Screen>);
+static_assert(!std::is_copy_assignable_v<Screen>);
+static_assert(std::is_nothrow_move_constructible_v<Screen>);
+static_assert(!std::is_nothrow_move_assignable_v<Screen>);
 
 /// Abstraction over a rectangular ASCII art level map definition.
 struct LevelMap {
@@ -123,13 +182,13 @@ struct LevelMap {
   }
 
   /// Check if a coordinate on the map is out-of-bounds (OOB).
-  [[nodiscard]] bool is_oob(int x, int y) const {
-    return x < 0 || y < 0 || x >= static_cast<int>(width) || y >= static_cast<int>(height);
+  [[nodiscard]] bool is_oob(const Position<int>& p) const {
+    return p.x < 0 || p.y < 0 || p.x >= static_cast<int>(width) || p.y >= static_cast<int>(height);
   }
 
   /// Check if a coordinate on the map is a wall element.
-  [[nodiscard]] bool is_wall(int x, int y) const {
-    return !is_oob(x, y) && format.at(((width + 1) * static_cast<unsigned int>(y)) + static_cast<unsigned int>(x)) == '#';
+  [[nodiscard]] bool is_wall(const Position<int>& p) const {
+    return !is_oob(p) && format.at(((width + 1) * static_cast<unsigned int>(p.y)) + static_cast<unsigned int>(p.x)) == '#';
   }
 
   const std::string  format;
@@ -139,20 +198,19 @@ struct LevelMap {
 
 /// Player state manager.
 struct Player {
-  Player(float x, float y, float a)
-    : x{x}
-    , y{y}
+  Player(const Position<float>& p, float a)
+    : pos{p}
     , angle{a} {
   }
 
   void move_up() {
-    x += 0.1f * std::sin(angle);
-    y += 0.1f * std::cos(angle);
+    pos.x += 0.1f * std::sin(angle);
+    pos.y += 0.1f * std::cos(angle);
   }
 
   void move_down() {
-    x -= 0.1f * std::sin(angle);
-    y -= 0.1f * std::cos(angle);
+    pos.x -= 0.1f * std::sin(angle);
+    pos.y -= 0.1f * std::cos(angle);
   }
 
   void turn_ccw() {
@@ -163,15 +221,14 @@ struct Player {
     angle = std::fmod(angle + 0.1f, PI2);
   }
 
-  float x;     // Current X-coordinate in [map block units].
-  float y;     // Current Y-coordinate in [map block units].
-  float angle; // Current orientation angle in [radians].
+  Position<float> pos;   // Current position in [map block units].
+  float           angle; // Current orientation angle in [radians].
 };
 
-[[nodiscard]] static int distance_to_wall_shade(const Screen& s, float d) {
+[[nodiscard]] static constexpr int distance_to_wall_shade(float d) {
   if (d < MAX_DEPTH) {
     const float shade = std::clamp(MAX_DEPTH - (2.0f * d), 0.0f, MAX_DEPTH);
-    return s.WALL_SHADES.at(s.WALL_SHADES.size() - 1 - static_cast<std::size_t>(shade * static_cast<float>(s.WALL_SHADES.size()) / MAX_DEPTH));
+    return WALL_SHADES.at(WALL_SHADES.size() - 1 - static_cast<std::size_t>(shade * (WALL_SHADES.size() / MAX_DEPTH)));
   } else {
     return WALL_COLOR_X;
   }
@@ -219,14 +276,14 @@ int main() {
                        "####################\n"};
 
     Screen s;
-    Player p{7.0f, 1.0f, 0.0f};
+    Player p{{7.0f, 1.0f}, 0.0f};
 
     while (true) {
       const auto t_start = std::chrono::system_clock::now();
 
       // Display mini-map and player location / orientation.
-      s.print(0, 0, MAP.format);
-      s.print(static_cast<unsigned int>(p.x), static_cast<unsigned int>(p.y), angle_to_char(p.angle));
+      s.print({0, 0}, MAP.format);
+      s.print(p.pos, angle_to_char(p.angle));
 
       for (unsigned int x = 0; x < s.width; x++) {
         const float ray_angle = p.angle - (FOV / 2) + (static_cast<float>(x) * FOV) / static_cast<float>(s.width);
@@ -239,19 +296,19 @@ int main() {
         while (!hit && (dist_wall < MAX_DEPTH)) {
           dist_wall += 0.1f;
 
-          const int xx = static_cast<int>(std::round(p.x + norm_x * dist_wall));
-          const int yy = static_cast<int>(std::round(p.y + norm_y * dist_wall));
+          const int xx = static_cast<int>(std::round(p.pos.x + norm_x * dist_wall));
+          const int yy = static_cast<int>(std::round(p.pos.y + norm_y * dist_wall));
 
-          const bool hit_wall = MAP.is_wall(xx, yy);
-          hit                 = MAP.is_oob(xx, yy) || hit_wall;
+          const bool hit_wall = MAP.is_wall({xx, yy});
+          hit                 = MAP.is_oob({xx, yy}) || hit_wall;
 
           if (hit_wall) {
             std::array<std::pair<float, float>, 4> corners; // Distances and dot products per wall block corner.
 
             for (unsigned int tx = 0; tx < 2; tx++) {
               for (unsigned int ty = 0; ty < 2; ty++) {
-                const float vx          = static_cast<float>(xx + tx) - p.x;
-                const float vy          = static_cast<float>(yy + ty) - p.y;
+                const float vx          = static_cast<float>(xx + tx) - p.pos.x;
+                const float vy          = static_cast<float>(yy + ty) - p.pos.y;
                 const float d           = std::sqrt(vx * vx + vy * vy);
                 corners.at(ty * 2 + tx) = std::make_pair(d, (norm_x * vx / d) + (norm_y * vy / d));
               }
@@ -265,23 +322,23 @@ int main() {
 
         const long dist_ceiling = static_cast<long>(std::round((static_cast<float>(s.height) / 2.0f) - (static_cast<float>(s.height) / dist_wall)));
         const long dist_floor   = static_cast<long>(std::round(s.height - dist_ceiling));
-        const int  wall_shade   = distance_to_wall_shade(s, dist_wall);
+        const int  wall_shade   = distance_to_wall_shade(dist_wall);
 
         for (unsigned int y = 0; y < s.height; y++) {
           if (x >= MAP.width || y >= MAP.height) {
             if (y < dist_ceiling) {
-              s.print(x, y, " "); // Ceiling.
+              s.print({x, y}, " "); // Ceiling.
             } else if (y > dist_ceiling && y <= dist_floor) {
               attron(COLOR_PAIR(wall_shade));
               if (bound) {
-                s.print(x, y, "\u2593"); // Wall bound.
+                s.print({x, y}, "\u2593"); // Wall bound.
               } else {
-                s.print(x, y, "\u2588"); // Wall.
+                s.print({x, y}, "\u2588"); // Wall.
               }
               attroff(COLOR_PAIR(wall_shade));
             } else {
               const float d = 1.0f - ((static_cast<float>(y) - (static_cast<float>(s.height) / 2.0f)) / (static_cast<float>(s.height) / 2.0f));
-              s.print(x, y, [&] { // Floor.
+              s.print({x, y}, [&] { // Floor.
                 if (d < 0.25f) {
                   return "#";
                 } else if (d < 0.5f) {
@@ -300,7 +357,7 @@ int main() {
       }
 
       const auto t_elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - t_start);
-      s.print(0, s.height - 1, fmt::format("Frame rate: {:.0f} FPS", 1e6f / static_cast<float>(t_elapsed.count())));
+      s.print({0u, s.height - 1}, fmt::format("Frame rate: {:.0f} FPS", 1e6f / static_cast<float>(t_elapsed.count())));
 
       s.update();
 
@@ -308,13 +365,13 @@ int main() {
         using enum Screen::Key;
       case Up:
         p.move_up();
-        if (MAP.is_wall(static_cast<int>(p.x), static_cast<int>(p.y))) {
+        if (MAP.is_wall(p.pos)) {
           p.move_down(); // Collision detection: undo the previous operation.
         }
         break;
       case Down:
         p.move_down();
-        if (MAP.is_wall(static_cast<int>(p.x), static_cast<int>(p.y))) {
+        if (MAP.is_wall(p.pos)) {
           p.move_up(); // Collision detection: undo the previous operation.
         }
         break;

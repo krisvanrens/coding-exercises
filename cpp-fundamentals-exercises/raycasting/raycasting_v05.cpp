@@ -18,7 +18,7 @@ constexpr float MAX_DEPTH = 15.0f;     // Maximum visible depth in [map block un
 /// Wrapper around the default 'stdscr' window in ncurses.
 struct Screen {
 private:
-  WINDOW* const window_;
+  const WINDOW* const window_;
 
 public:
   enum class Key { Up, Down, Left, Right, Quit, Other };
@@ -30,6 +30,10 @@ public:
     cbreak();    // Break on character input (i.e. don't wait for enter).
     noecho();    // Don't echo input keys.
     curs_set(0); // Disable cursor.
+
+    if (!window_) {
+      throw std::runtime_error{"failed to initialize screen"};
+    }
 
     // Uncomment this line to enable delay-less operation of ncurses. Otherwise ncurses will blocking-wait for key input.
     // nodelay(stdscr, TRUE);
@@ -108,7 +112,7 @@ int main() {
         const int yy = static_cast<int>(std::round(player_y + norm_y * dist_wall));
 
         hit = xx < 0 || yy < 0 || xx >= static_cast<int>(MAP_WIDTH) || yy >= static_cast<int>(MAP_HEIGHT)
-              || MAP[(MAP_WIDTH * static_cast<unsigned int>(yy)) + static_cast<unsigned int>(xx)] == '#';
+              || MAP.at((MAP_WIDTH * static_cast<unsigned int>(yy)) + static_cast<unsigned int>(xx)) == '#';
       }
 
       const long dist_ceiling = static_cast<long>(std::round((static_cast<float>(s.height) / 2.0f) - (static_cast<float>(s.height) / dist_wall)));
@@ -160,7 +164,7 @@ int main() {
 
       // Collision detection: undo the previous operation.
       if ((player_x > 0.0f) && (player_y > 0.0f) && (static_cast<unsigned int>(player_x) <= MAP_WIDTH) && (static_cast<unsigned int>(player_y) <= MAP_HEIGHT)
-          && MAP[(MAP_WIDTH * static_cast<unsigned int>(player_y)) + static_cast<unsigned int>(player_x)] == '#') {
+          && MAP.at((MAP_WIDTH * static_cast<unsigned int>(player_y)) + static_cast<unsigned int>(player_x)) == '#') {
         player_x -= 0.1f * std::sin(player_angle);
         player_y -= 0.1f * std::cos(player_angle);
       }
@@ -171,7 +175,7 @@ int main() {
 
       // Collision detection: undo the previous operation.
       if ((player_x > 0.0f) && (player_y > 0.0f) && (static_cast<unsigned int>(player_x) <= MAP_WIDTH) && (static_cast<unsigned int>(player_y) <= MAP_HEIGHT)
-          && MAP[(MAP_WIDTH * static_cast<unsigned int>(player_y)) + static_cast<unsigned int>(player_x)] == '#') {
+          && MAP.at((MAP_WIDTH * static_cast<unsigned int>(player_y)) + static_cast<unsigned int>(player_x)) == '#') {
         player_x += 0.1f * std::sin(player_angle);
         player_y += 0.1f * std::cos(player_angle);
       }
