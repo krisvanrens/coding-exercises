@@ -140,6 +140,7 @@ It doesn't look pretty, I do agree, but it's much better than a bug.
 
 You may have noticed that in my solution code the map string object `MAP` characters are indexed using `at()` rather than using the index operator `operator[]` (called the 'subscript operator').
 Member function `at()` simply does what the subscript operator does, but with bounds checking.
+Almost all array-like types in the C++ standard library have an `at` member function as an alternative to the subscript operator.
 
 Reading out-of-bounds with the subscript operator is undefined behavior, and may lead to any situation you can possibly imagine (most often a crash or segmentation fault).
 Errors like this are some of the main causes of security vulnerabilities and crashes.
