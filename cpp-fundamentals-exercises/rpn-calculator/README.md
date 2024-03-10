@@ -464,7 +464,7 @@ The following table shows the number of machine instructions per executable vers
 | rpn-calculator_v04 | 937 |
 | rpn-calculator_v05 | 1048 |
 | rpn-calculator_v06 | 1390 |
-| rpn-calculator_v07 | 1608 |
+| rpn-calculator_v07 | 1607 |
 | rpn-calculator_v08 | 1430 |
 | rpn-calculator_v09 | 1594 |
 | rpn-calculator_v10 | 1814 |
@@ -472,10 +472,10 @@ The following table shows the number of machine instructions per executable vers
 | rpn-calculator_v12 | 1877 |
 | rpn-calculator_v13 | 1907 |
 | rpn-calculator_v14 | 1907 |
-| rpn-calculator_v15 | 2051 |
-| rpn-calculator_v16 | 1727 |
-| rpn-calculator_v17 | 1739 |
-| rpn-calculator_v18 | 1423 |
+| rpn-calculator_v15 | 2059 |
+| rpn-calculator_v16 | 1730 |
+| rpn-calculator_v17 | 1740 |
+| rpn-calculator_v18 | 1428 |
 
 The compiler used was GCC-12.3 for an AMD Ryzen 7 PRO 4750 running Ubuntu Linux 22.04.3.
 

@@ -136,6 +136,22 @@ To guard ourselves for issues like this, we can use strong compiler warning flag
 The compiler will now force us to consciously deal with each treacherous/narrowing type conversion using `static_cast`.
 It doesn't look pretty, I do agree, but it's much better than a bug.
 
+#### Safer array-like type indexing with `at()`
+
+You may have noticed that in my solution code the map string object `MAP` characters are indexed using `at()` rather than using the index operator `operator[]` (called the 'subscript operator').
+Member function `at()` simply does what the subscript operator does, but with bounds checking.
+
+Reading out-of-bounds with the subscript operator is undefined behavior, and may lead to any situation you can possibly imagine (most often a crash or segmentation fault).
+Errors like this are some of the main causes of security vulnerabilities and crashes.
+Reading out-of-bounds when indexing with `at()` will cause an exception to be thrown ([`std::out_of_range`](https://en.cppreference.com/w/cpp/error/out_of_range)).
+This means you can properly detect and handle it, leading to safer, more deterministic software.
+The trade-off for this safety is the costs of the bounds checking, which adds a couple of machine instructions.
+It's up to you to determine if it's worth it...be careful.
+
+My advice: default to safety, *then* choose performance if it really matters.
+
+There is no `try`/`catch` block in this version, we will deal with error handling in more detail in a later version.
+
 ### Version 02: Wall shades
 
 This version is the previous version including wall shading.
