@@ -5,10 +5,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Cmake build
-        #working-directory: ./cpp-fundamentals-exercises/raycasting
+        working-directory: ./cpp-fundamentals-exercises/raycasting
         run: |
-          ls -lR
           mkdir build
           cd build
           cmake ..
