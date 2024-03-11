@@ -9,6 +9,8 @@ The exercise code level and intermediate steps have been tuned accordingly.
 
 ### Raycasting
 
+![build status](https://github.com/krisvanrens/coding-exercises/actions/workflows/cpp-raycasting/badge.svg)
+
 Build a simple [raycasting](https://en.wikipedia.org/wiki/Ray_casting) environment in C++20.
 
 - [Exercise slides](https://krisvanrens.github.io/coding-exercises/cpp-fundamentals-exercises/module_xx-exercise-raycasting.html)
@@ -16,6 +18,8 @@ Build a simple [raycasting](https://en.wikipedia.org/wiki/Ray_casting) environme
 - [Solution code](https://github.com/krisvanrens/coding-exercises/tree/main/cpp-fundamentals-exercises/raycasting)
 
 ### RPN calculator
+
+![build status](https://github.com/krisvanrens/coding-exercises/actions/workflows/cpp-rpn-calculator/badge.svg)
 
 Build a simple [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Reverse_Polish_notation) calculator in C++20.
 
