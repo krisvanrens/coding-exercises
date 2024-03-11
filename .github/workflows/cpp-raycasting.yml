@@ -1,4 +1,6 @@
 name: cpp-raycasting
+on:
+  push
 jobs:
   build:
     runs-on: ubuntu-latest
