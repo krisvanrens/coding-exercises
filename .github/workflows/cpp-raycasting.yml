@@ -1,0 +1,11 @@
+name: cpp-raycasting
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cmake build
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make
