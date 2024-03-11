@@ -4,8 +4,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: gcc:13
     steps:
       - uses: actions/checkout@v4
+      - name: Install CMake
+        run: |
+          apt update -y
+          apt install -y cmake
       - name: Cmake build
         working-directory: ./cpp-fundamentals-exercises/raycasting
         run: |
