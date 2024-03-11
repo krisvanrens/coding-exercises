@@ -6,8 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Cmake build
-        working-directory: ./cpp-fundamentals-exercises/raycasting
+        #working-directory: ./cpp-fundamentals-exercises/raycasting
         run: |
+          ls -lR
           mkdir build
           cd build
           cmake ..
