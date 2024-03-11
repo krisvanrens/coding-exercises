@@ -10,7 +10,7 @@ jobs:
       - name: Install CMake
         run: |
           apt update -y
-          apt install -y cmake
+          apt install -y cmake cmake-extras
       - name: Cmake build
         working-directory: ./cpp-fundamentals-exercises/raycasting
         run: |
