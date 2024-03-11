@@ -7,11 +7,11 @@ jobs:
     container: gcc:13
     steps:
       - uses: actions/checkout@v4
-      - name: Install CMake
+      - name: Install CMake + dependencies
         run: |
           apt update -y
           apt install -y cmake libfmt-dev
-      - name: Cmake build
+      - name: CMake build
         working-directory: ./cpp-fundamentals-exercises/raycasting
         run: |
           mkdir build
