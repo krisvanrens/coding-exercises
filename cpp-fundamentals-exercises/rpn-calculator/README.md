@@ -67,6 +67,7 @@ But this also means you can't just compare your code to mine one-to-one.
 
 Use a diff tool to reveal the difference between each of the versions, and use that difference to check out a possible solution to an exercise step.
 Popular diff tools may include `diff`, `meld`, `vimdiff` or perhaps your IDE/editor of choice supports diff views.
+I do strongly recommend [`difftastic`](https://github.com/Wilfred/difftastic), which is a diff tool that actually understands language syntax.
 
 For example, to use `vimdiff` to see what's changed between versions 06 and 07:
 
