@@ -140,7 +140,7 @@ Note how dealing with a result is very nice using the `if let` syntax.
 Lastly, if the operand parse failed as well, we will leave the `classify` function with an `Invalid` token variant.
 Note that we can omit `return` and the statement ending semicolon to leave the function with a value.
 
-### Version 03: Seperate method for tokenization / parsing
+### Version 03: Method for tokenization / parsing
 
 This version is the previous version, but now with input data reading, tokenization, parsing and error handling + tests in a separate method.
 
@@ -149,7 +149,7 @@ There are some subtle changes w.r.t. the previous version, highlighted in the fo
 #### The method API
 
 First we will define a separate method called `read_token` that will classify the string data to a token and parse the value if applicable (`Operand` and `Operator`).
-Classification and parsing is an inherently fallable mechanism, so we need some way to propagate errors out of the method call.
+Classification and parsing is an inherently fallible mechanism, so we need some way to propagate errors out of the method call.
 You may think: "but we have the `Invalid` token for that right?"
 Yes, that's true, but the `Invalid` token is meant for "calculator-level" errors, not fatal system errors.
 Suppose for some external reason the system memory becomes corrupted, and operand value parsing fails, is the `Invalid` token still the best way to deal with this?
@@ -167,7 +167,7 @@ There are two reasons for this:
 
 The abstraction for the string data source I used is the [`BufReader` trait](https://doc.rust-lang.org/std/io/struct.BufReader.html).
 By taking the source as a `impl BufReader`, we indicate simply that the source we pass as a caller must implement the `BufReader` trait.
-We can also make the method generic over `B` and require the `B: BufReader` trait bound (i.e. `fn read_token<B: BufReader>(source: &mut B) ...`, but the `impl` notation is much more readable.
+We can also make the method generic over `B` and require the `B: BufReader` trait bound (i.e. `fn read_token<B: BufReader>(source: &mut B) ...`), but the `impl` notation is much more readable.
 Even though the `impl BufReader` notation is syntactic sugar for the named generic parameter, there is a difference between the two notations (read about it [here](https://doc.rust-lang.org/reference/types/impl-trait.html)).
 
 We take the source as a `&mut` to be able to read and modify it.
@@ -307,7 +307,7 @@ Build the documentation using `cargo doc` from the command-line.
 
 Note that bits of code can be excluded from example code by using this notation:
 
-```
+```rs
 /// ```
 /// # Lines starting with '#' will be ignored.
 /// # This one too.
