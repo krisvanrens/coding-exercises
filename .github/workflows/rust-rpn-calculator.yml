@@ -1,0 +1,17 @@
+name: rust-rpn-calculator
+on:
+  push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        working-directory: ./exploring-rust-exercises/rpn-calculator
+        run: |
+          cargo check
+          cargo build
+      - name: Test
+        working-directory: ./exploring-rust-exercises/rpn-calculator
+        run: |
+          cargo test --all
