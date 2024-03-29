@@ -32,7 +32,16 @@ Build a simple [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Rev
 The [Exploring Rust training](https://www.hightechinstitute.nl/courses/exploring-rust/) is an intensive, short introduction training to Rust for experienced software engineers.
 The exercise code level and intermediate steps have been tuned accordingly.
 
-*Exercises, slides and solution code are W.I.P. -- check back later!*
+### RPN calculator
+
+![build status](https://github.com/krisvanrens/coding-exercises/actions/workflows/rust-rpn-calculator.yml/badge.svg)
+
+Build a simple [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Reverse_Polish_notation) calculator in Rust.
+
+- [Exercise slides](https://krisvanrens.github.io/coding-exercises/exploring-rust-exercises/part_x-exercise-rpn-calculator.html)
+- [Solution code README](https://krisvanrens.github.io/coding-exercises/exploring-rust-exercises/rpn-calculator)
+- [Solution code](https://github.com/krisvanrens/coding-exercises/tree/main/exploring-rust-exercises/rpn-calculator)
+
 
 ## More info / contact
 
