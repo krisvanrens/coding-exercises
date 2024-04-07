@@ -39,12 +39,12 @@ Or, if you feel [brave](https://xn--rpa.cc/irl/term.html), write your own abstra
 
 This idea of a simple ASCII-based "FPS-like" environment in a couple of lines of code is not original.
 I took it from [javid9x: "One Lone Coder" on YouTube](http://www.youtube.com/javidx9).
-I also used [his code example](https://github.com/OneLoneCoder/CommandLineFPS) as the original inspiration for the 'bare bones version' (i.e. version 02 approximately).
+I also used [their code example](https://github.com/OneLoneCoder/CommandLineFPS) as the original inspiration for the 'bare bones version' (i.e. version 02 approximately).
 Their version was also in C++, but my versions are idiomatic C++20 and hopefully safer too.
 
 It's just great to see how far you can reach with just a little bit of code, an awesome example of how to have fun coding!
 
-Anyway, many thanks to javid9x, be sure to check out [his website](http://www.onelonecoder.com/).
+Anyway, many thanks to javid9x, be sure to check out [their website](http://www.onelonecoder.com/).
 
 ## Build instructions
 
