@@ -66,14 +66,14 @@ struct Position {
 
   template<arithmetic U>
   constexpr Position(U x, U y)
-    : x{static_cast<T>(x)}
-    , y{static_cast<T>(y)} {
+    : x{static_cast<T>(std::round(x))}
+    , y{static_cast<T>(std::round(y))} {
   }
 
   template<arithmetic U>
   constexpr Position(const Position<U>& p)
-    : x{static_cast<T>(p.x)}
-    , y{static_cast<T>(p.y)} {
+    : x{static_cast<T>(std::round(p.x))}
+    , y{static_cast<T>(std::round(p.y))} {
   }
 
   T x, y;
@@ -177,7 +177,7 @@ struct LevelMap {
 
   /// Check if a coordinate on the map is a wall element.
   [[nodiscard]] bool is_wall(const Position<int>& p) const {
-    return !is_oob(p) && format.at(((width + 1) * static_cast<unsigned int>(p.y)) + static_cast<unsigned int>(p.x)) == '#';
+    return !is_oob(p) && format.at((width + 1) * static_cast<unsigned int>(p.y) + static_cast<unsigned int>(p.x)) == '#';
   }
 
   const std::string  format;

@@ -129,7 +129,7 @@ struct LevelMap {
 
   /// Check if a coordinate on the map is a wall element.
   [[nodiscard]] bool is_wall(int x, int y) const {
-    return !is_oob(x, y) && format.at(((width + 1) * static_cast<unsigned int>(y)) + static_cast<unsigned int>(x)) == '#';
+    return !is_oob(x, y) && format.at((width + 1) * static_cast<unsigned int>(y) + static_cast<unsigned int>(x)) == '#';
   }
 
   const std::string  format;
@@ -308,13 +308,13 @@ int main() {
         using enum Screen::Key;
       case Up:
         p.move_up();
-        if (MAP.is_wall(static_cast<int>(p.x), static_cast<int>(p.y))) {
+        if (MAP.is_wall(static_cast<int>(std::round(p.x)), static_cast<int>(std::round(p.y)))) {
           p.move_down(); // Collision detection: undo the previous operation.
         }
         break;
       case Down:
         p.move_down();
-        if (MAP.is_wall(static_cast<int>(p.x), static_cast<int>(p.y))) {
+        if (MAP.is_wall(static_cast<int>(std::round(p.x)), static_cast<int>(std::round(p.y)))) {
           p.move_up(); // Collision detection: undo the previous operation.
         }
         break;

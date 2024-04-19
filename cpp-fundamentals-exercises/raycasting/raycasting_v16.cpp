@@ -76,6 +76,10 @@ struct Position {
     , y{static_cast<T>(std::round(p.y))} {
   }
 
+  constexpr Position<T> adjusted(T dx, T dy) {
+    return Position(x + dx, y + dy);
+  }
+
   T x, y;
 };
 
@@ -203,14 +207,18 @@ struct Player {
     , angle{a} {
   }
 
-  void move_up() {
-    pos.x += 0.1f * std::sin(angle);
-    pos.y += 0.1f * std::cos(angle);
+  void move_up_if(std::invocable<Position<float>> auto&& pred) {
+    const auto pos_new = pos.adjusted(0.1f * std::sin(angle), 0.1f * std::cos(angle));
+    if (pred(pos_new)) {
+      pos = pos_new;
+    }
   }
 
-  void move_down() {
-    pos.x -= 0.1f * std::sin(angle);
-    pos.y -= 0.1f * std::cos(angle);
+  void move_down_if(std::invocable<Position<float>> auto&& pred) {
+    const auto pos_new = pos.adjusted(-0.1f * std::sin(angle), -0.1f * std::cos(angle));
+    if (pred(pos_new)) {
+      pos = pos_new;
+    }
   }
 
   void turn_ccw() {
@@ -363,18 +371,8 @@ int main() {
 
       switch (s.get_key()) {
         using enum Screen::Key;
-      case Up:
-        p.move_up();
-        if (MAP.is_wall(p.pos)) {
-          p.move_down(); // Collision detection: undo the previous operation.
-        }
-        break;
-      case Down:
-        p.move_down();
-        if (MAP.is_wall(p.pos)) {
-          p.move_up(); // Collision detection: undo the previous operation.
-        }
-        break;
+      case Up: p.move_up_if([&](const auto& pos) { return !MAP.is_wall(pos); }); break;
+      case Down: p.move_down_if([&](const auto& pos) { return !MAP.is_wall(pos); }); break;
       case Left: p.turn_ccw(); break;
       case Right: p.turn_cw(); break;
       case Other: break;

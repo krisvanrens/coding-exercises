@@ -426,11 +426,48 @@ Try it!
 
 ### Version 15: Tightening resource handle `Screen`
 
+All of the previous including the right way to seal off the `Screen` resource class type.
+
 The `Screen` structure is a resource handle to a stationary, unique resource: the `stdscr` window of ncurses.
 Even though the `const`-ness of some of the members dictates the `Screen` type behavior (copy/move restrictions are transmissible), it's safer to tighten and guard the behavior of `Screen` explicitly.
 
 First we request a default definition of the move constructor, and we undeclare the move assignment operator (through `= delete`).
 Then we also add some build-time tests based on `static_assert` to guard the behaviour of the `Screen` type.
+
+### Version 16: Refactoring move/collision detection
+
+All of the previous including a more intelligent solution to moving under the condition of collision with wall elements.
+
+In the previous versions of our program, collision detection is implemented as an "undo" operation on the previous player move.
+This is done by checking the position of the player right after a move.
+
+Wouldn't it be nice if we could move the player, and have the move operation check a predicate to commit to the move or not.
+In other words, move if the predicate results to `true`, otherwise the move is a no-op.
+
+The idiomatic way to pass behavior into another function is by using a template parameter.
+In this case, we expect a predicate that is called with the new-position-to-be-stored, for testing by the predicate.
+The result of the predicate will decide if the new position is stored.
+When calling the conditional move functions, we pass the test "is the new position inside a wall element?".
+
+The resulting code, especially the part that deals with input, is now easier to read and maintain.
+And what's more: we even save on machine instructions (see table below).
+
+A note on the conditional move functions `move_up_if` and `move_down_if`: it uses `auto` type parameters.
+Defining generic parameters like this is the same as explicitly defining a function template.
+So this code:
+
+```c++
+void move_down_if(std::invocable<Position<float>> auto&& pred) {}
+```
+
+Is equivalent to:
+
+```c++
+template<std::invocable<Position<float>> F>
+void move_down_if(F&& pred) {}
+```
+
+Make up your own mind as to what's the nicest solution here.
 
 ## Number of machine instructions per executable
 
@@ -441,19 +478,20 @@ The following table shows the number of machine instructions per executable vers
 | raycasting_v00 | 221 |
 | raycasting_v01 | 490 |
 | raycasting_v02 | 600 |
-| raycasting_v03 | 1047 |
-| raycasting_v04 | 689 |
-| raycasting_v05 | 758 |
-| raycasting_v06 | 1043 |
-| raycasting_v07 | 1034 |
-| raycasting_v08 | 1577 |
-| raycasting_v09 | 1611 |
-| raycasting_v10 | 1679 |
-| raycasting_v11 | 1802 |
-| raycasting_v12 | 1972 |
-| raycasting_v13 | 1947 |
-| raycasting_v14 | 1942 |
-| raycasting_v15 | 1942 |
+| raycasting_v03 | 1070 |
+| raycasting_v04 | 713 |
+| raycasting_v05 | 781 |
+| raycasting_v06 | 1054 |
+| raycasting_v07 | 1045 |
+| raycasting_v08 | 1588 |
+| raycasting_v09 | 1621 |
+| raycasting_v10 | 1687 |
+| raycasting_v11 | 1813 |
+| raycasting_v12 | 1981 |
+| raycasting_v13 | 1957 |
+| raycasting_v14 | 1972 |
+| raycasting_v15 | 1972 |
+| raycasting_v16 | 1939 |
 
 The compiler used was GCC-12.3 for an AMD Ryzen 7 PRO 4750 running Ubuntu Linux 22.04.3.
 

@@ -164,7 +164,7 @@ int main() {
 
       // Collision detection: undo the previous operation.
       if ((player_x > 0.0f) && (player_y > 0.0f) && (static_cast<unsigned int>(player_x) <= MAP_WIDTH) && (static_cast<unsigned int>(player_y) <= MAP_HEIGHT)
-          && MAP.at((MAP_WIDTH * static_cast<unsigned int>(player_y)) + static_cast<unsigned int>(player_x)) == '#') {
+          && MAP.at((MAP_WIDTH * static_cast<unsigned int>(std::round(player_y))) + static_cast<unsigned int>(std::round(player_x))) == '#') {
         player_x -= 0.1f * std::sin(player_angle);
         player_y -= 0.1f * std::cos(player_angle);
       }
@@ -175,7 +175,7 @@ int main() {
 
       // Collision detection: undo the previous operation.
       if ((player_x > 0.0f) && (player_y > 0.0f) && (static_cast<unsigned int>(player_x) <= MAP_WIDTH) && (static_cast<unsigned int>(player_y) <= MAP_HEIGHT)
-          && MAP.at((MAP_WIDTH * static_cast<unsigned int>(player_y)) + static_cast<unsigned int>(player_x)) == '#') {
+          && MAP.at((MAP_WIDTH * static_cast<unsigned int>(std::round(player_y))) + static_cast<unsigned int>(std::round(player_x))) == '#') {
         player_x += 0.1f * std::sin(player_angle);
         player_y += 0.1f * std::cos(player_angle);
       }

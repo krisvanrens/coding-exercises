@@ -95,7 +95,7 @@ struct LevelMap {
 
   /// Check if a coordinate on the map is a wall element.
   [[nodiscard]] bool is_wall(int x, int y) const {
-    return !is_oob(x, y) && format.at(((width + 1) * static_cast<unsigned int>(y)) + static_cast<unsigned int>(x)) == '#';
+    return !is_oob(x, y) && format.at((width + 1) * static_cast<unsigned int>(y) + static_cast<unsigned int>(x)) == '#';
   }
 
   const std::string  format;
@@ -193,7 +193,7 @@ int main() {
         player_y += 0.1f * std::cos(player_angle);
 
         // Collision detection: undo the previous operation.
-        if (MAP.is_wall(static_cast<int>(player_x), static_cast<int>(player_y))) {
+        if (MAP.is_wall(static_cast<int>(std::round(player_x)), static_cast<int>(std::round(player_y)))) {
           player_x -= 0.1f * std::sin(player_angle);
           player_y -= 0.1f * std::cos(player_angle);
         }
@@ -203,7 +203,7 @@ int main() {
         player_y -= 0.1f * std::cos(player_angle);
 
         // Collision detection: undo the previous operation.
-        if (MAP.is_wall(static_cast<int>(player_x), static_cast<int>(player_y))) {
+        if (MAP.is_wall(static_cast<int>(std::round(player_x)), static_cast<int>(std::round(player_y)))) {
           player_x += 0.1f * std::sin(player_angle);
           player_y += 0.1f * std::cos(player_angle);
         }
