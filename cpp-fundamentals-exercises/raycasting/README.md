@@ -510,6 +510,7 @@ for exe in raycasting_v??; do echo "${exe}, $(objdump -d ${exe} | grep -c '^[[:s
 Here are some ideas to further extend the exercise:
 
 - Read the level map from a file on disk.
+- Improve the frame rate (profile the application to find bottlenecks).
 - Add other game statistics information such as player position/orientation etc.
 - Make the maze resilient to white-on-black as well as black-on-white terminals.
 - Add support for window resizing.

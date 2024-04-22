@@ -32,6 +32,16 @@ Build a simple [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Rev
 The [Exploring Rust training](https://www.hightechinstitute.nl/courses/exploring-rust/) is an intensive, short introduction training to Rust for experienced software engineers.
 The exercise code level and intermediate steps have been tuned accordingly.
 
+### Raycasting
+
+![build status](https://github.com/krisvanrens/coding-exercises/actions/workflows/rust-raycasting.yml/badge.svg)
+
+Build a simple [raycasting](https://en.wikipedia.org/wiki/Ray_casting) environment in Rust.
+
+- [Exercise slides](https://krisvanrens.github.io/coding-exercises/exploring-rust-exercises/part_x--exercise-raycasting.html)
+- [Solution code README](https://krisvanrens.github.io/coding-exercises/exploring-rust-exercises/raycasting)
+- [Solution code](https://github.com/krisvanrens/coding-exercises/tree/main/exploring-rust-exercises/raycasting)
+
 ### RPN calculator
 
 ![build status](https://github.com/krisvanrens/coding-exercises/actions/workflows/rust-rpn-calculator.yml/badge.svg)
