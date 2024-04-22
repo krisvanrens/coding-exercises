@@ -38,7 +38,7 @@ The exercise code level and intermediate steps have been tuned accordingly.
 
 Build a simple [raycasting](https://en.wikipedia.org/wiki/Ray_casting) environment in Rust.
 
-- [Exercise slides](https://krisvanrens.github.io/coding-exercises/exploring-rust-exercises/part_x--exercise-raycasting.html)
+- [Exercise slides](https://krisvanrens.github.io/coding-exercises/exploring-rust-exercises/part_x-exercise-raycasting.html)
 - [Solution code README](https://krisvanrens.github.io/coding-exercises/exploring-rust-exercises/raycasting)
 - [Solution code](https://github.com/krisvanrens/coding-exercises/tree/main/exploring-rust-exercises/raycasting)
 
