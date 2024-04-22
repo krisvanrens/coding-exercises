@@ -2,6 +2,8 @@
 
 This set of source files implements possible solutions for the Raycasting exercise.
 
+![Raycasting demo](images/raycasting.gif)
+
 As usual with programming exercises, there is no such thing as "the solution" -- many options are possible.
 These solutions are mine, and opinionated by my experience, taste and style.
 Feel free to divert and disagree.
@@ -75,6 +77,10 @@ Read more about this in [The Cargo Book](https://doc.rust-lang.org/cargo/referen
 I chose the naming conventions-based solution simply because it takes the least amount of work.
 Hey, I was told good developers are lazy developers!
 
+Screen shot from this version:
+
+![v00](images/raycasting_v00.png)
+
 ### Version 01: Raycasting setup
 
 This version is the previous version including the raycasting setup.
@@ -132,6 +138,10 @@ In other languages like C++ we would have to resort to [IIFE with a lambdas](htt
 
 The floor color/texture is done in a similar fashion, by normalizing the range values for a fixed distance.
 
+Screen shot from this version:
+
+![v02](images/raycasting_v02.png)
+
 ### Version 03: Moving around
 
 This version is the previous version including input handling to be able to move around.
@@ -144,6 +154,10 @@ In essence, the player position is conditionally updated (as long as no wall col
 This code assumes that the map definition is "closed" and the player is not able to walk off the edge of the world.
 
 For the player angle we use the [Euclidian remainder calculation `rem_euclid`](https://doc.rust-lang.org/std/primitive.f32.html#method.rem_euclid) to keep the value in the range `0..2π`.
+
+Screen shot from this version:
+
+![v03](images/raycasting_v03.png)
 
 ### Version 04: Refactoring in abstractions
 
@@ -264,6 +278,10 @@ for tx in 0..2 {
 Aside from the fact that the top code is more concise, the main difference is that in the bottom code snippet first initializes the mutable array, then loads the dot product values.
 However, I'm not entirely sure if the needless initialization of the top code snippet actually survives the whole (surprisingly smart) compilation process at all.
 
+Screen shot from this version:
+
+![v05](images/raycasting_v05.png)
+
 ### Version 06: Mini-map and FPS visualization
 
 This version is the previous version including visualization of the map, player location and frame rate.
@@ -277,12 +295,20 @@ In order to ergonomically work with visualization of a `Player` and `Map` value,
 
 The frame rate measurement is implemented using [`std::time`](https://doc.rust-lang.org/std/time/index.html) from the standard library, where we (ex- or implicitly) use [`std::time::Instance`](https://doc.rust-lang.org/std/time/struct.Instant.html) and [`std::time::Duration`](https://doc.rust-lang.org/std/time/struct.Duration.html).
 
+Screen shot from this version:
+
+![v06](images/raycasting_v06.png)
+
 ### Version 07: Wall shades using colors
 
 This version is the previous version including using colors to introduce more wall shades.
 
 Crate `crossterm` supports the simple use of custom RGB colors via `style::Color::Rgb` where we can set each color channel value independently.
 The solution code translates the wall distance value to a `u8` value that is used to set R/G/B all at once.
+
+Screen shot from this version:
+
+![v07](images/raycasting_v07.png)
 
 ### Version 08: A compile-time level `Map` value
 
