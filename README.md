@@ -57,7 +57,7 @@ Build a simple [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Rev
 Found an error?
 See an improvement?
 
-Feel free to file [an issue](https://github.com/krisvanrens/coding-exercises/issues/new/choose) or create [a PR](https://github.com/krisvanrens/coding-exercises/compare) against this repository.
+Feel free to file [an issue](https://github.com/krisvanrens/coding-exercises/issues/new/choose) or create [a PR](https://github.com/krisvanrens/coding-exercises/pulls) against this repository.
 Do note that I'm doing all of this in my free time next to a busy life, so it can take some time -- but I will get back to you eventually!
 
 Thanks in advance 🙂
