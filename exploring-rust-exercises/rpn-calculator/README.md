@@ -140,41 +140,41 @@ Note how dealing with a result is very nice using the `if let` syntax.
 Lastly, if the operand parse failed as well, we will leave the `classify` function with an `Invalid` token variant.
 Note that we can omit `return` and the statement ending semicolon to leave the function with a value.
 
-### Version 03: Method for tokenization / parsing
+### Version 03: Functions for tokenization / parsing
 
-This version is the previous version, but now with input data reading, tokenization, parsing and error handling + tests in a separate method.
+This version is the previous version, but now with input data reading, tokenization, parsing and error handling + tests in a separate function.
 
 There are some subtle changes w.r.t. the previous version, highlighted in the following subsections.
 
-#### The method API
+#### The function API
 
-First we will define a separate method called `read_token` that will classify the string data to a token and parse the value if applicable (`Operand` and `Operator`).
-Classification and parsing is an inherently fallible mechanism, so we need some way to propagate errors out of the method call.
+First we will define a separate function called `read_token` that will classify the string data to a token and parse the value if applicable (`Operand` and `Operator`).
+Classification and parsing is an inherently fallible mechanism, so we need some way to propagate errors out of the function call.
 You may think: "but we have the `Invalid` token for that right?"
 Yes, that's true, but the `Invalid` token is meant for "calculator-level" errors, not fatal system errors.
 Suppose for some external reason the system memory becomes corrupted, and operand value parsing fails, is the `Invalid` token still the best way to deal with this?
-No, in that case we want a fatal error to propagate to the caller of the method, which means we should use a `Result<Token, Error>` for the method return value.
+No, in that case we want a fatal error to propagate to the caller of the function, which means we should use a `Result<Token, Error>` for the function return value.
 We will discuss the error type in the next subsection.
 
-Then we are left with the method argument; how are we going to ingest the string data?
+Then we are left with the function argument; how are we going to ingest the string data?
 There are different choices to make here, all with their pros and cons.
 For the solution code, I chose to offload as much of the token processing as possible to `read_token`, without assuming the nature of the input source.
 What I mean with this last bit is: I don't want to assume standard input as the input source in `read_token`, the source should be universal up to a degree.
 There are two reasons for this:
 
-- Choosing to take a universal source makes the method code more reusable (for other sources),
+- Choosing to take a universal source makes the function code more reusable (for other sources),
 - We can plug in test sources...for testing :-)
 
 The abstraction for the string data source I used is the [`BufReader` trait](https://doc.rust-lang.org/std/io/struct.BufReader.html).
 By taking the source as a `impl BufReader`, we indicate simply that the source we pass as a caller must implement the `BufReader` trait.
-We can also make the method generic over `B` and require the `B: BufReader` trait bound (i.e. `fn read_token<B: BufReader>(source: &mut B) ...`), but the `impl` notation is much more readable.
+We can also make the function generic over `B` and require the `B: BufReader` trait bound (i.e. `fn read_token<B: BufReader>(source: &mut B) ...`), but the `impl` notation is much more readable.
 Even though the `impl BufReader` notation is syntactic sugar for the named generic parameter, there is a difference between the two notations (read about it [here](https://doc.rust-lang.org/reference/types/impl-trait.html)).
 
 We take the source as a `&mut` to be able to read and modify it.
 
 #### Error handling
 
-In the previous section we discussed the argumentation for using a `Result<T, E>` method return type.
+In the previous section we discussed the argumentation for using a `Result<T, E>` function return type.
 Now, what to choose for `E`, there error type here?
 
 For a simple application like this exercise (up until now at least), it makes little sense to define our own custom error type.
@@ -192,14 +192,14 @@ Nice!
 In contrast to the previous version, this version reads the input data stream word-for-word, rather than a line at a time.
 This changes the classification and parsing mechanics, the `read_token` function reads until the first white space.
 
-Note that the [`BufRead::read_until`](https://doc.rust-lang.org/std/io/trait.BufRead.html#method.read_until) method returns a `Result`, so we can use the question mark operator to have errors propagate to the caller of `read_token`.
+Note that the [`BufRead::read_until` method](https://doc.rust-lang.org/std/io/trait.BufRead.html#method.read_until) returns a `Result`, so we can use the question mark operator to have errors propagate to the caller of `read_token`.
 
 Because the input is a byte array, we must build a string from it first.
 Then we can implement parsing of operators and operands.
 
 #### The result of `main`
 
-In Rust, the `main` method can have one of two prototypes:
+In Rust, the `main` function can have one of two prototypes:
 
 - `fn main()`, i.e. a function without a return value (unit `()` return type),
 - `fn main() -> Result<T, E>`, i.e. a function returning a `Result`.
@@ -222,7 +222,7 @@ We can see in [the documentation](https://doc.rust-lang.org/std/io/trait.BufRead
 
 This version is the previous version, with simple calculation support.
 
-The `calculate` method in the solution code takes the two operands and a operator, and simply returns the result of the calculation.
+The `calculate` function in the solution code takes the two operands and a operator, and simply returns the result of the calculation.
 To be overflow-safe (sort of) we use signed 128-bit integers for the primitive types.
 We will deal with the right way to handle calculation errors/overflow in a future step.
 
@@ -246,7 +246,7 @@ This is quite a large step again, I'll highlight each of the notable changes in 
 
 The state machine itself is pretty straight-forward and needs no extra explanation.
 We represent the states using another enumerator `State`.
-In the `main` method we simply loop over the state transitions, and exit the loop upon an error or if we are done (i.e. when the `Result` state is reached).
+In the `main` function we simply loop over the state transitions, and exit the loop upon an error or if we are done (i.e. when the `Result` state is reached).
 
 The loop body comprises of a `match` expression over the current state value mostly.
 Each of the state variants then again form a `match` expression over the current token.
@@ -262,8 +262,8 @@ This may seem odd, why are we breaking with a value in the first place, and why 
 
 Many things in Rust are expressions, perhaps more than you're used to, especially if you come from C or C++.
 But this can be used to your advantage, as it allows for more expressive flexibility.
-In this case, the `loop` is an expression too, and the last thing in the `main` method.
-This means the result of the `loop` expression is the result of the `main` method.
+In this case, the `loop` is an expression too, and the last thing in the `main` function.
+This means the result of the `loop` expression is the result of the `main` function.
 That's why we can `break` with a value.
 
 #### The `desert!` macro
@@ -288,7 +288,7 @@ Or, what happens if you `echo ""` into your program (i.e. empty input), does it 
 In this step we try to find corner-cases of operation, and deal with them properly.
 In most cases, this is matter of dealing with them explicitly using `if` or `match` expressions.
 But to deal with overflow, we can benefit from the `checked_..` methods implemented for number primitive types.
-We'll have to convert the return type of the `calculate` method to `Result<i128>` and let the error propagate nicely.
+We'll have to convert the return type of the `calculate` function to `Result<i128>` and let the error propagate nicely.
 
 This version should pass all the tests from the test script.
 Nice!
@@ -297,12 +297,12 @@ Nice!
 
 This version is the previous version, where we organized the single source file into a library + executable, and added documentation.
 
-We simply move the types (except `State`) and methods (except `main`) to a file called `lib.rs` in the crate `src/` directory.
+We simply move the types (except `State`) and methods/functions (except `main`) to a file called `lib.rs` in the crate `src/` directory.
 To be able to access the moved types/methods from the executable code, we muse add `use rpn_calculator::*;` (to simply import everything).
 That is not all though, we must also add `pub` where appropriate.
 
-Documentation is added to all types and methods.
-The documentation for the `read_token` method also features a bit of example code, when running `cargo test` from the command-line, this code is run/tested as well, very nice!
+Documentation is added to all items.
+The documentation for the `read_token` function also features a bit of example code, when running `cargo test` from the command-line, this code is run/tested as well, very nice!
 Build the documentation using `cargo doc` from the command-line.
 
 Note that bits of code can be excluded from example code by using this notation:

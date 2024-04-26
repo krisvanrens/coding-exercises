@@ -222,19 +222,19 @@ Another obvious abstraction is the `Player` abstraction to own and manage the pl
 
 The nice thing of having all the state together is that we can also make `Player` the responsible owner of its movement behavior logic.
 Especially the position movement modifier methods are interesting here, because they allow the user to inject custom condition checking code.
-Passing methods/lambda functions to other methods is done via traits `FnOnce`/`FnMut`/`Fn`.
-In this case, we expect a predicate method that must be able to be called once, expecting a `&Position<f32>` argument and returning a boolean value.
-The predicate method is called with the to-be-stored new player position, if the predicate returns `true`, the new position will be stored, otherwise it will be ignored.
+Passing methods/functions/lambdas to other methods is done via traits `FnOnce`/`FnMut`/`Fn`.
+In this case, we expect a predicate that must be able to be called once, expecting a `&Position<f32>` argument and returning a boolean value.
+The predicate is called with the to-be-stored new player position, if the predicate returns `true`, the new position will be stored, otherwise it will be ignored.
 This setup makes the input handling code at the end of the game loop very simple.
 
 The `Player` type is pretty simple otherwise.
 
-#### Helper methods for distance-to-color conversion
+#### Helper functions for distance-to-color conversion
 
-Both methods `distance_to_wall_color` and `distance_to_floor_texture` are `match` expressions wrapped in a method.
+Both functions `distance_to_wall_color` and `distance_to_floor_texture` are `match` expressions wrapped in a function block.
 The advantage is that the main business logic only contains the readable/understandable calls to these functions, without having to skip over the internals.
 
-One thing worth mentioning here is that each of these methods returns a string slice pointing to a single static (Unicode) character.
+One thing worth mentioning here is that each of these blocks returns a string slice pointing to a single static (Unicode) character.
 Because a string slice `&str` is a reference type, we must explicitly mention that it has a `'static` lifetime.
 
 ### Version 05: Wall block boundary visualization

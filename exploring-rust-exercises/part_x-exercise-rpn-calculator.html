@@ -297,6 +297,7 @@ padding: 5px 25px 20px 25px;
 font-family: 'Lora', serif;
 font-style: italic;
 font-size: 0.90em;
+text-align: left;
 border-radius: 4px;
 background: #f2e1b3;
 box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.15);
@@ -504,7 +505,10 @@ display: block;
 margin-left: auto;
 margin-right: auto;
 }
-div .img-inline-block p img {
+div.img-inline-block > img {
+display: inline-block;
+}
+div.p-inline-block > p img {
 display: inline-block;
 }
 .line-block {
@@ -810,16 +814,16 @@ mapping by minimizing the amount of possible invalid states.</p>
 that can be used in calculations.</p>
 </div>
 </section>
-<section id="version-03-method-for-tokenization-parsing" class="slide level2">
-<h2><hl-0>Version 03</hl-0>: Method for tokenization / parsing</h2>
+<section id="version-03-functions-for-tokenization-parsing" class="slide level2">
+<h2><hl-0>Version 03</hl-0>: Functions for tokenization / parsing</h2>
 <p>In this step, we’ll move the code out of <code>fn main</code>, and
-create a separate method for it.</p>
+create a separate function for it.</p>
 <p> </p>
-<p>Carefully design the method API, and consider argument/return types,
-error handling and tests.</p>
+<p>Carefully design the function API, and consider argument/return
+types, error handling and tests.</p>
 <p> </p>
 <p><strong>Hint</strong>: The solution code uses an
-<code>impl Trait</code> argument type to make the method as generic as
+<code>impl Trait</code> argument type to make the function as generic as
 possible. This not only improves reuse possibilities, but also
 facilitates testing. Read about it <a href="https://doc.rust-lang.org/rust-by-example/trait/impl_trait.html">here</a>
 and <a href="https://doc.rust-lang.org/reference/types/impl-trait.html">here</a>.</p>
@@ -862,9 +866,9 @@ gracefully fail.</p>
 </section>
 <section id="version-08-reorganizing-and-documentation" class="slide level2">
 <h2><hl-0>Version 08</hl-0>: Reorganizing and documentation</h2>
-<p>Let’s reorganize our code into library components (the types, the
-methods), and an executable (<code>fn main</code>).</p>
-<p>Keep the method unit tests local to the functions, or move them to
+<p>Let’s reorganize our code into library components
+(types/methods/functions), and an executable (<code>fn main</code>).</p>
+<p>Keep the function unit tests local to the functions, or move them to
 the <code>/tests</code> directory.</p>
 <p> </p>
 <p>Also add documentation for all library components. Make sure your
@@ -877,7 +881,7 @@ documentation features example code, that is tested when running
 the token source, until the end of the token stream is reached. This
 “sequence source”-like behavior sounds very much like how we would work
 with iterators. Would it be possible to build an iterator type around
-the <code>read_token</code> method? Let’s find out!</p>
+the <code>read_token</code> function? Let’s find out!</p>
 <p> </p>
 <p>Read about iterators <a href="https://doc.rust-lang.org/rust-by-example/trait/iter.html">here</a>
 and <a href="https://aloso.github.io/2021/03/09/creating-an-iterator">here</a>.
