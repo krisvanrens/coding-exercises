@@ -15,7 +15,7 @@ const PI2: f32 = PI * 2.0;
 const FOV: f32 = PI / 3.0;
 const MAX_DEPTH: f32 = 15.0;
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 struct Position<T> {
     x: T,
     y: T,
@@ -63,11 +63,13 @@ impl Map {
         }
     }
 
-    fn contains(&self, pos: &Position<u16>) -> bool {
+    fn contains(&self, pos: impl Into<Position<u16>>) -> bool {
+        let pos: Position<u16> = pos.into();
         (pos.x as usize) < self.width && (pos.y as usize) < self.height
     }
 
-    fn is_wall(&self, pos: &Position<u16>) -> bool {
+    fn is_wall(&self, pos: impl Into<Position<u16>>) -> bool {
+        let pos: Position<u16> = pos.into();
         self.layout.as_bytes()[self.stride * pos.y as usize + pos.x as usize] == b'#'
     }
 }
@@ -82,20 +84,20 @@ impl Player {
         Self { pos, angle }
     }
 
-    fn move_up_if(&mut self, pred: impl FnOnce(&Position<f32>) -> bool) {
+    fn move_up_if(&mut self, pred: impl FnOnce(Position<f32>) -> bool) {
         let new_pos = self
             .pos
             .adjusted(0.1 * self.angle.sin(), 0.1 * self.angle.cos());
-        if pred(&new_pos) {
+        if pred(new_pos) {
             self.pos = new_pos;
         }
     }
 
-    fn move_down_if(&mut self, pred: impl FnOnce(&Position<f32>) -> bool) {
+    fn move_down_if(&mut self, pred: impl FnOnce(Position<f32>) -> bool) {
         let new_pos = self
             .pos
             .adjusted(-0.1 * self.angle.sin(), -0.1 * self.angle.cos());
-        if pred(&new_pos) {
+        if pred(new_pos) {
             self.pos = new_pos;
         }
     }
@@ -173,7 +175,7 @@ fn main() -> Result<()> {
                 let xx = (p.pos.x + norm_x * dist_wall) as u16;
                 let yy = (p.pos.y + norm_y * dist_wall) as u16;
 
-                hit = !map.contains(&Position::new(xx, yy)) || map.is_wall(&Position::new(xx, yy));
+                hit = !map.contains(Position::new(xx, yy)) || map.is_wall(Position::new(xx, yy));
             }
 
             let dist_ceiling = ((height as f32 / 2.0) - (height as f32 / dist_wall)).round() as u16;
@@ -199,12 +201,8 @@ fn main() -> Result<()> {
 
         if let Event::Key(e) = event::read()? {
             match e.code {
-                KeyCode::Char('w') => {
-                    p.move_up_if(|p| !map.is_wall(&p.clone().into()));
-                }
-                KeyCode::Char('s') => {
-                    p.move_down_if(|p| !map.is_wall(&p.clone().into()));
-                }
+                KeyCode::Char('w') => p.move_up_if(|p| !map.is_wall(p)),
+                KeyCode::Char('s') => p.move_down_if(|p| !map.is_wall(p)),
                 KeyCode::Char('a') => p.turn_ccw(),
                 KeyCode::Char('d') => p.turn_cw(),
                 KeyCode::Char('q') => break,

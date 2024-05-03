@@ -20,7 +20,7 @@ const MAX_DEPTH: f32 = 15.0;
 /// Wall block corner offset positions.
 const OFFSETS: [(u16, u16); 4] = [(0, 0), (0, 1), (1, 0), (1, 1)];
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 struct Position<T> {
     x: T,
     y: T,
@@ -68,11 +68,13 @@ impl Map {
         }
     }
 
-    fn contains(&self, pos: &Position<u16>) -> bool {
+    fn contains(&self, pos: impl Into<Position<u16>>) -> bool {
+        let pos: Position<u16> = pos.into();
         (pos.x as usize) < self.width && (pos.y as usize) < self.height
     }
 
-    fn is_wall(&self, pos: &Position<u16>) -> bool {
+    fn is_wall(&self, pos: impl Into<Position<u16>>) -> bool {
+        let pos: Position<u16> = pos.into();
         self.layout.as_bytes()[self.stride * pos.y as usize + pos.x as usize] == b'#'
     }
 }
@@ -93,20 +95,20 @@ impl Player {
         Self { pos, angle }
     }
 
-    fn move_up_if(&mut self, pred: impl FnOnce(&Position<f32>) -> bool) {
+    fn move_up_if(&mut self, pred: impl FnOnce(Position<f32>) -> bool) {
         let new_pos = self
             .pos
             .adjusted(0.1 * self.angle.sin(), 0.1 * self.angle.cos());
-        if pred(&new_pos) {
+        if pred(new_pos) {
             self.pos = new_pos;
         }
     }
 
-    fn move_down_if(&mut self, pred: impl FnOnce(&Position<f32>) -> bool) {
+    fn move_down_if(&mut self, pred: impl FnOnce(Position<f32>) -> bool) {
         let new_pos = self
             .pos
             .adjusted(-0.1 * self.angle.sin(), -0.1 * self.angle.cos());
-        if pred(&new_pos) {
+        if pred(new_pos) {
             self.pos = new_pos;
         }
     }
@@ -207,8 +209,8 @@ fn main() -> Result<()> {
                 let xx = (p.pos.x + norm_x * dist_wall) as u16;
                 let yy = (p.pos.y + norm_y * dist_wall) as u16;
 
-                let hit_wall = map.is_wall(&Position::new(xx, yy));
-                hit = !map.contains(&Position::new(xx, yy)) || hit_wall;
+                let hit_wall = map.is_wall(Position::new(xx, yy));
+                hit = !map.contains(Position::new(xx, yy)) || hit_wall;
 
                 if hit_wall {
                     let mut corners = OFFSETS.map(|(tx, ty)| {
@@ -230,7 +232,7 @@ fn main() -> Result<()> {
 
             for y in 0..(height - 1) {
                 // Save the last line for frame rate info.
-                if !map.contains(&Position::new(x, y)) {
+                if !map.contains(Position::new(x, y)) {
                     queue!(
                         stdout,
                         cursor::MoveTo(x, y),
@@ -275,12 +277,8 @@ fn main() -> Result<()> {
 
         if let Event::Key(e) = event::read()? {
             match e.code {
-                KeyCode::Char('w') => {
-                    p.move_up_if(|p| !map.is_wall(&p.clone().into()));
-                }
-                KeyCode::Char('s') => {
-                    p.move_down_if(|p| !map.is_wall(&p.clone().into()));
-                }
+                KeyCode::Char('w') => p.move_up_if(|p| !map.is_wall(p)),
+                KeyCode::Char('s') => p.move_down_if(|p| !map.is_wall(p)),
                 KeyCode::Char('a') => p.turn_ccw(),
                 KeyCode::Char('d') => p.turn_cw(),
                 KeyCode::Char('q') => break,

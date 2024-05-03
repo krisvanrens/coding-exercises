@@ -191,10 +191,7 @@ Other than that there are two more things worth mentioning about the `Position` 
 
 - We add an `adjusted` method to create a new position from an existing one given a delta value for both coordinates (which is used in the player movement methods).
 - We add an implementation of the `From` trait to be able to convert a `Position` with underlying type `u16` to one with underlying type `f32`.
-
-Regarding the `From` trait implementation, this is still slightly inconvenient, because the trait dictates that its `from` method consumes the input value.
-This means we must clone a value before we can call `from` or `into` for conversion.
-This is not easy to circumvent, but I guess it's the price we pay for the explicit nature of Rust here.
+- The `is_contained` and `is_wall` methods on `Map` (see next subsection) take input positions as `impl Into<..>`. A call to this function will thus consume the argument value, which is fine because we call all of them with temporary values. This does mean that we must make `Position` `Clone` (by deriving this trait implementation).
 
 #### Level map type `Map`
 
@@ -327,9 +324,12 @@ This `const`-ification is something that is actively being worked on, so in the 
 
 For now, we'll have to make do with C-style imperative code to solve our compile-time problems.
 
+Of course, it must be noted that this whole compile-time effort breaks down when the level map must be read from disk for example.
+In a production setting, it probably does not make sense to do this, but it sure makes for a fun experiment!
+
 ### Version 09: Reorganizing and documentation
 
-This version is the previous version, where we organized the single source file into a library + executable, and added documentation.
+This version is version 07 (the non-`const` `Map`), where we organized the single source file into a library + executable, and added documentation.
 
 Make sure you add (concise) documentation and only expose the needed entities using `pub`.
 
@@ -337,6 +337,7 @@ Make sure you add (concise) documentation and only expose the needed entities us
 
 Here are some ideas to further extend the exercise:
 
+- Implement the `Position` type as a proper arithmetic vector type.
 - Try another terminal backend, like [termion](https://docs.rs/termion/latest/termion/index.html).
 - Read the level map from a file on disk.
 - Improve the frame rate (profile the application to find bottlenecks).

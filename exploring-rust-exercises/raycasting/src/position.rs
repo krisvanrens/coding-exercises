@@ -1,7 +1,7 @@
 use std::ops::Add;
 
 /// 2D position abstraction.
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct Position<T> {
     pub x: T,
     pub y: T,

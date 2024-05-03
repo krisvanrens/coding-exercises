@@ -16,21 +16,21 @@ impl Player {
     }
 
     /// Move up the player position if the predicate call checks out (called with new position).
-    pub fn move_up_if(&mut self, pred: impl FnOnce(&Position<f32>) -> bool) {
+    pub fn move_up_if(&mut self, pred: impl FnOnce(Position<f32>) -> bool) {
         let new_pos = self
             .pos
             .adjusted(0.1 * self.angle.sin(), 0.1 * self.angle.cos());
-        if pred(&new_pos) {
+        if pred(new_pos) {
             self.pos = new_pos;
         }
     }
 
     /// Move down the player position if the predicate call checks out (called with new position).
-    pub fn move_down_if(&mut self, pred: impl FnOnce(&Position<f32>) -> bool) {
+    pub fn move_down_if(&mut self, pred: impl FnOnce(Position<f32>) -> bool) {
         let new_pos = self
             .pos
             .adjusted(-0.1 * self.angle.sin(), -0.1 * self.angle.cos());
-        if pred(&new_pos) {
+        if pred(new_pos) {
             self.pos = new_pos;
         }
     }

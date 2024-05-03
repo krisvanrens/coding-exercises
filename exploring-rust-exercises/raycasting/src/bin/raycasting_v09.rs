@@ -34,22 +34,6 @@ fn dist_to_floor_texture(d: f32) -> &'static str {
     }
 }
 
-/// The level map definition.
-const MAP: Map = Map::new(
-    "####################\n\r\
-     #   ##             #\n\r\
-     #   ##             #\n\r\
-     #                  #\n\r\
-     #         ##########\n\r\
-     #                  #\n\r\
-     ######             #\n\r\
-     #    #      ###    #\n\r\
-     #    #      ###    #\n\r\
-     #                  #\n\r\
-     #                  #\n\r\
-     ####################\n\r",
-);
-
 fn main() -> Result<()> {
     terminal::enable_raw_mode()?;
 
@@ -60,6 +44,21 @@ fn main() -> Result<()> {
     execute!(stdout, cursor::Hide)?;
 
     let (width, height) = terminal::size()?;
+
+    let map = Map::new(
+        "####################\n\r\
+         #   ##             #\n\r\
+         #   ##             #\n\r\
+         #                  #\n\r\
+         #         ##########\n\r\
+         #                  #\n\r\
+         ######             #\n\r\
+         #    #      ###    #\n\r\
+         #    #      ###    #\n\r\
+         #                  #\n\r\
+         #                  #\n\r\
+         ####################\n\r",
+    );
 
     let mut p = Player::new(Position::new(7.0, 1.0), 0.0);
 
@@ -80,8 +79,8 @@ fn main() -> Result<()> {
                 let xx = (p.pos.x + norm_x * dist_wall) as u16;
                 let yy = (p.pos.y + norm_y * dist_wall) as u16;
 
-                let hit_wall = MAP.is_wall(&Position::new(xx, yy));
-                hit = !MAP.contains(&Position::new(xx, yy)) || hit_wall;
+                let hit_wall = map.is_wall(Position::new(xx, yy));
+                hit = !map.contains(Position::new(xx, yy)) || hit_wall;
 
                 if hit_wall {
                     let mut corners = OFFSETS.map(|(tx, ty)| {
@@ -102,7 +101,7 @@ fn main() -> Result<()> {
             let wall_color = dist_to_wall_color(dist_wall);
 
             for y in 0..(height - 1) {
-                if !MAP.contains(&Position::new(x, y)) {
+                if !map.contains(Position::new(x, y)) {
                     queue!(
                         stdout,
                         cursor::MoveTo(x, y),
@@ -136,7 +135,7 @@ fn main() -> Result<()> {
         queue!(
             stdout,
             cursor::MoveTo(0, 0),
-            style::Print(&MAP),
+            style::Print(&map),
             cursor::MoveTo(p.pos.x as u16, p.pos.y as u16),
             style::Print(&p)
         )?;
@@ -156,12 +155,8 @@ fn main() -> Result<()> {
 
         if let Event::Key(e) = event::read()? {
             match e.code {
-                KeyCode::Char('w') => {
-                    p.move_up_if(|p| !MAP.is_wall(&p.clone().into()));
-                }
-                KeyCode::Char('s') => {
-                    p.move_down_if(|p| !MAP.is_wall(&p.clone().into()));
-                }
+                KeyCode::Char('w') => p.move_up_if(|p| !map.is_wall(p)),
+                KeyCode::Char('s') => p.move_down_if(|p| !map.is_wall(p)),
                 KeyCode::Char('a') => p.turn_ccw(),
                 KeyCode::Char('d') => p.turn_cw(),
                 KeyCode::Char('q') => break,
