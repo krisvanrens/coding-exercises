@@ -52,7 +52,7 @@ Build a simple [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Rev
 - [Solution code README](https://krisvanrens.github.io/coding-exercises/exploring-rust-exercises/rpn-calculator)
 - [Solution code](https://github.com/krisvanrens/coding-exercises/tree/main/exploring-rust-exercises/rpn-calculator)
 
-## Constributions
+## Contributions
 
 Found an error?
 See an improvement?
