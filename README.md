@@ -2,7 +2,7 @@
 
 Coding exercises in C++ and Rust.
 
-## C++ Fundamentals (High Tech Institute)
+## C++ Fundamentals 🔩 (High Tech Institute)
 
 The [C++ Fundamentals training](https://www.hightechinstitute.nl/courses/c-fundamentals/) is a comprehensive four-day training on C++20 for software engineers new to C++.
 The exercise code level and intermediate steps have been tuned accordingly.
@@ -27,7 +27,7 @@ Build a simple [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Rev
 - [Solution code README](https://krisvanrens.github.io/coding-exercises/cpp-fundamentals-exercises/rpn-calculator)
 - [Solution code](https://github.com/krisvanrens/coding-exercises/tree/main/cpp-fundamentals-exercises/rpn-calculator)
 
-## Exploring Rust (High Tech Institute)
+## Exploring Rust 🦀 (High Tech Institute)
 
 The [Exploring Rust training](https://www.hightechinstitute.nl/courses/exploring-rust/) is an intensive, short introduction training to Rust for experienced software engineers.
 The exercise code level and intermediate steps have been tuned accordingly.
