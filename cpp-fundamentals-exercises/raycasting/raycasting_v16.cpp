@@ -9,7 +9,7 @@ extern "C" {
 #include <chrono>
 #include <clocale>
 #include <cmath>
-#include <concepts>
+#include <cstdint>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
@@ -35,10 +35,7 @@ constexpr auto make_index_sequence_with_offset() {
 /// Generate an array with offset indexes as values, at compile-time.
 template<typename T, std::size_t N, std::size_t Offset>
 constexpr auto make_array_with_indices() {
-  return []<std::size_t... Is>(std::index_sequence<Is...>) {
-    return std::array<T, N>{Is...};
-  }
-  (make_index_sequence_with_offset<Offset, N>());
+  return []<std::size_t... Is>(std::index_sequence<Is...>) { return std::array<T, N>{Is...}; }(make_index_sequence_with_offset<Offset, N>());
 }
 
 } // namespace helpers
@@ -71,7 +68,7 @@ struct Position {
   }
 
   template<arithmetic U>
-  constexpr Position(const Position<U>& p)
+  constexpr Position(const Position<U>& p) // NOLINT(hicpp-explicit-conversions)
     : x{static_cast<T>(std::round(p.x))}
     , y{static_cast<T>(std::round(p.y))} {
   }
@@ -89,7 +86,7 @@ private:
   const WINDOW* const window_;
 
 public:
-  enum class Key { Up, Down, Left, Right, Quit, Other };
+  enum class Key : uint8_t { Up, Down, Left, Right, Quit, Other };
 
   Screen()
     : window_{initscr()}
@@ -233,7 +230,9 @@ struct Player {
   float           angle; // Current orientation angle in [radians].
 };
 
-[[nodiscard]] static constexpr int distance_to_wall_shade(float d) {
+namespace {
+
+[[nodiscard]] constexpr int distance_to_wall_shade(float d) {
   if (d < MAX_DEPTH) {
     const float shade = std::clamp(MAX_DEPTH - (2.0f * d), 0.0f, MAX_DEPTH);
     return WALL_SHADES.at(WALL_SHADES.size() - 1 - static_cast<std::size_t>(shade * (WALL_SHADES.size() / MAX_DEPTH)));
@@ -242,7 +241,7 @@ struct Player {
   }
 }
 
-[[nodiscard]] static constexpr std::string angle_to_char(float a) {
+[[nodiscard]] constexpr std::string angle_to_char(float a) {
   constexpr float D = PI / 8.0f;
 
   if (a > (PI2 - D) || a <= D) {
@@ -263,6 +262,8 @@ struct Player {
     return "\u21D9"; // South West arrow.
   }
 }
+
+} // namespace
 
 int main() {
   try {
@@ -313,12 +314,12 @@ int main() {
           if (hit_wall) {
             std::array<std::pair<float, float>, 4> corners; // Distances and dot products per wall block corner.
 
-            for (unsigned int tx = 0; tx < 2; tx++) {
-              for (unsigned int ty = 0; ty < 2; ty++) {
-                const float vx          = static_cast<float>(xx + tx) - p.pos.x;
-                const float vy          = static_cast<float>(yy + ty) - p.pos.y;
-                const float d           = std::sqrt(vx * vx + vy * vy);
-                corners.at(ty * 2 + tx) = std::make_pair(d, (norm_x * vx / d) + (norm_y * vy / d));
+            for (int tx = 0; tx < 2; tx++) {
+              for (int ty = 0; ty < 2; ty++) {
+                const float vx                                    = static_cast<float>(xx + tx) - p.pos.x;
+                const float vy                                    = static_cast<float>(yy + ty) - p.pos.y;
+                const float d                                     = std::sqrt(vx * vx + vy * vy);
+                corners.at(static_cast<std::size_t>(ty * 2 + tx)) = std::make_pair(d, (norm_x * vx / d) + (norm_y * vy / d));
               }
             }
 

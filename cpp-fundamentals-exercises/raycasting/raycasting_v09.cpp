@@ -6,6 +6,7 @@ extern "C" {
 #include <array>
 #include <clocale>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
@@ -26,7 +27,7 @@ private:
   const WINDOW* const window_;
 
 public:
-  enum class Key { Up, Down, Left, Right, Quit, Other };
+  enum class Key : uint8_t { Up, Down, Left, Right, Quit, Other };
 
   Screen()
     : window_{initscr()}
@@ -183,12 +184,12 @@ int main() {
           if (hit_wall) {
             std::array<std::pair<float, float>, 4> corners; // Distances and dot products per wall block corner.
 
-            for (unsigned int tx = 0; tx < 2; tx++) {
-              for (unsigned int ty = 0; ty < 2; ty++) {
-                const float vx          = static_cast<float>(xx + tx) - p.x;
-                const float vy          = static_cast<float>(yy + ty) - p.y;
-                const float d           = std::sqrt(vx * vx + vy * vy);
-                corners.at(ty * 2 + tx) = std::make_pair(d, (norm_x * vx / d) + (norm_y * vy / d));
+            for (int tx = 0; tx < 2; tx++) {
+              for (int ty = 0; ty < 2; ty++) {
+                const float vx                                    = static_cast<float>(xx + tx) - p.x;
+                const float vy                                    = static_cast<float>(yy + ty) - p.y;
+                const float d                                     = std::sqrt(vx * vx + vy * vy);
+                corners.at(static_cast<std::size_t>(ty * 2 + tx)) = std::make_pair(d, (norm_x * vx / d) + (norm_y * vy / d));
               }
             }
 

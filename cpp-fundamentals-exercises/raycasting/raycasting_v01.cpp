@@ -10,7 +10,6 @@ extern "C" {
 #include <string>
 
 constexpr float PI        = std::numbers::pi_v<float>;
-constexpr float PI2       = PI * 2.0f;
 constexpr float FOV       = PI / 3.0f; // Field of view in [radians].
 constexpr float MAX_DEPTH = 15.0f;     // Maximum visible depth in [map block units].
 

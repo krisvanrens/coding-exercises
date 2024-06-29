@@ -9,6 +9,7 @@ extern "C" {
 #include <chrono>
 #include <clocale>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
@@ -19,8 +20,7 @@ extern "C" {
 #include <string_view>
 #include <utility>
 
-constexpr int          WALL_COLOR_X          = 10; // Black/background.
-constexpr unsigned int NUMBER_OF_WALL_SHADES = 16;
+constexpr int WALL_COLOR_X = 10; // Black/background.
 
 constexpr float PI        = std::numbers::pi_v<float>;
 constexpr float PI2       = PI * 2.0f;
@@ -33,7 +33,7 @@ private:
   const WINDOW* const window_;
 
 public:
-  enum class Key { Up, Down, Left, Right, Quit, Other };
+  enum class Key : uint8_t { Up, Down, Left, Right, Quit, Other };
 
   Screen()
     : window_{initscr()}
@@ -168,7 +168,9 @@ struct Player {
   float angle; // Current orientation angle in [radians].
 };
 
-[[nodiscard]] static int distance_to_wall_shade(const Screen& s, float d) {
+namespace {
+
+[[nodiscard]] int distance_to_wall_shade(const Screen& s, float d) {
   if (d < MAX_DEPTH) {
     const float shade = std::clamp(MAX_DEPTH - (2.0f * d), 0.0f, MAX_DEPTH);
     return s.WALL_SHADES.at(s.WALL_SHADES.size() - 1 - static_cast<std::size_t>(shade * static_cast<float>(s.WALL_SHADES.size()) / MAX_DEPTH));
@@ -177,7 +179,7 @@ struct Player {
   }
 }
 
-[[nodiscard]] static constexpr std::string angle_to_char(float a) {
+[[nodiscard]] constexpr std::string angle_to_char(float a) {
   constexpr float D = PI / 8.0f;
 
   if (a > (PI2 - D) || a <= D) {
@@ -198,6 +200,8 @@ struct Player {
     return "\u21D9"; // South West arrow.
   }
 }
+
+} // namespace
 
 int main() {
   try {
@@ -248,12 +252,12 @@ int main() {
           if (hit_wall) {
             std::array<std::pair<float, float>, 4> corners; // Distances and dot products per wall block corner.
 
-            for (unsigned int tx = 0; tx < 2; tx++) {
-              for (unsigned int ty = 0; ty < 2; ty++) {
-                const float vx          = static_cast<float>(xx + tx) - p.x;
-                const float vy          = static_cast<float>(yy + ty) - p.y;
-                const float d           = std::sqrt(vx * vx + vy * vy);
-                corners.at(ty * 2 + tx) = std::make_pair(d, (norm_x * vx / d) + (norm_y * vy / d));
+            for (int tx = 0; tx < 2; tx++) {
+              for (int ty = 0; ty < 2; ty++) {
+                const float vx                                    = static_cast<float>(xx + tx) - p.x;
+                const float vy                                    = static_cast<float>(yy + ty) - p.y;
+                const float d                                     = std::sqrt(vx * vx + vy * vy);
+                corners.at(static_cast<std::size_t>(ty * 2 + tx)) = std::make_pair(d, (norm_x * vx / d) + (norm_y * vy / d));
               }
             }
 

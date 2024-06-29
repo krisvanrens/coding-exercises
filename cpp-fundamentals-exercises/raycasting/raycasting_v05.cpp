@@ -4,6 +4,7 @@ extern "C" {
 
 #include <clocale>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <numbers>
@@ -21,7 +22,7 @@ private:
   const WINDOW* const window_;
 
 public:
-  enum class Key { Up, Down, Left, Right, Quit, Other };
+  enum class Key : uint8_t { Up, Down, Left, Right, Quit, Other };
 
   Screen()
     : window_{initscr()}

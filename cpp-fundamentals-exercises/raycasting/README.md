@@ -353,6 +353,12 @@ I chose for the set of "double arrows" in the UTF-8 character set; there's a nic
 To get the correct arrow given the current player orientation, I created a lookup function that simply translates an angle to a `std::string`.
 Note that we have to use `std::string` here, because the C/C++ `char` type can only store a single byte and we use UTF-8 characters in string literals here (anywhere from 1 to 4 bytes).
 
+The locally-used-only free function is wrapped in an [unnamed namespace](https://en.cppreference.com/w/cpp/language/namespace#Unnamed_namespaces).
+This will make the function have internal linkage, which means it is not visible from other translation units.
+This makes no sense for a single-source-file application like the one we're building now, but makes sense when extending the application and splitting up the source code files.
+Even though the namespace is anonymous, it will have a unique name at the linking level, and because it's unnamed, it cannot be accessed from other translation units.
+Splitting up code like this over multiple implementation files makes it possible to control the visibility and thus compile/linking across translation units.
+
 Screen shot from this version:
 
 ![v11](images/raycasting_v11.png)
@@ -375,6 +381,8 @@ To render the wall, we use the fully filled UTF-8 block character `\u2588` and s
 
 Note that we can simply change the number of wall shades, by changing the fixed size of the `std::array` declaration.
 All other code is based on using the size of the array dynamically.
+
+The local free function to convert distance to wall shade is used only locally, so we add it to the anonymous namespace (see description for version 11).
 
 Screen shot from this version:
 
