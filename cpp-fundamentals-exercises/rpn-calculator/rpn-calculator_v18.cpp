@@ -5,7 +5,6 @@
 #include <cmath>
 #include <exception>
 #include <iostream>
-#include <iterator>
 #include <limits>
 #include <locale>
 #include <stdexcept>
@@ -126,6 +125,8 @@ struct Eoc {};
 /// Input token representation.
 using Token = std::variant<Tokens::Operand, Tokens::Operator, Tokens::Eoc>;
 
+namespace {
+
 ///
 /// Read a token from standard input.
 ///
@@ -133,7 +134,7 @@ using Token = std::variant<Tokens::Operand, Tokens::Operator, Tokens::Eoc>;
 ///
 /// \throws A `std::runtime_error` if input stream reading fails.
 ///
-[[nodiscard]] static Token read_token() {
+[[nodiscard]] Token read_token() {
   static const auto loc = std::locale("en_US.UTF-8");
 
   std::string input;
@@ -171,7 +172,7 @@ using Token = std::variant<Tokens::Operand, Tokens::Operator, Tokens::Eoc>;
 /// \throws An exception if an unsupported operator is specified.
 ///
 template<typename T>
-[[nodiscard]] static T calculate(T lhs, T rhs, char op) {
+[[nodiscard]] T calculate(T lhs, T rhs, char op) {
   switch (op) {
   case '+': return lhs + rhs;
   case '-': return lhs - rhs;
@@ -193,6 +194,8 @@ template<typename T>
   default: throw std::invalid_argument{"unsupported operator"};
   }
 }
+
+} // namespace
 
 /// The stack memory type.
 using Memory = Stack<float, 2>;

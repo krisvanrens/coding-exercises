@@ -1,7 +1,9 @@
 #include <fmt/core.h>
 
 #include <algorithm>
+#include <cctype>
 #include <charconv>
+#include <cstdint>
 #include <exception>
 #include <iostream>
 #include <iterator>
@@ -18,7 +20,7 @@ constexpr std::string OPERATORS = "+-*/%";
 /// Input token representation.
 struct Token {
   /// Token type.
-  enum class Type {
+  enum class Type : uint8_t {
     Operand,  ///< Any valid operand (any arithmetic number).
     Operator, ///< Any valid operator.
     Invalid   ///< Invalid / unknown token.
@@ -48,6 +50,8 @@ struct Token {
   }
 };
 
+namespace {
+
 ///
 /// Read a token from standard input.
 ///
@@ -55,7 +59,7 @@ struct Token {
 ///
 /// \throws A `std::runtime_error` if input stream reading fails.
 ///
-[[nodiscard]] static std::optional<Token> read_token() {
+[[nodiscard]] std::optional<Token> read_token() {
   static const auto loc = std::locale("en_US.UTF-8");
 
   std::string input;
@@ -98,7 +102,7 @@ struct Token {
 ///
 /// \throws An exception if an unsupported operator is specified.
 ///
-[[nodiscard]] static long calculate(long lhs, long rhs, char op) {
+[[nodiscard]] long calculate(long lhs, long rhs, char op) {
   switch (op) {
   case '+': return lhs + rhs;
   case '-': return lhs - rhs;
@@ -108,6 +112,8 @@ struct Token {
   default: throw std::invalid_argument{"unsupported operator"};
   }
 }
+
+} // namespace
 
 /// The stack memory type.
 using Memory = std::stack<long>;

@@ -227,6 +227,12 @@ In a later solution version we will use `std::variant` for proper discriminant u
 Furthermore: I moved the input reading and token creation into its own function returning an `optional<Token>`.
 An optional, because when input reading EOF is reached, the caller should be able know this.
 
+The locally-used-only free function is wrapped in an [unnamed namespace](https://en.cppreference.com/w/cpp/language/namespace#Unnamed_namespaces).
+This will make the function have internal linkage, which means it is not visible from other translation units.
+This makes no sense for a single-source-file application like the one we're building now, but makes sense when extending the application and splitting up the source code files.
+Even though the namespace is anonymous, it will have a unique name at the linking level, and because it's unnamed, it cannot be accessed from other translation units.
+Splitting up code like this over multiple implementation files makes it possible to control the visibility and thus compile/linking across translation units.
+
 Errors are processed as exceptions.
 
 ### Version 04: Token parsing
@@ -246,6 +252,7 @@ This version is the previous version including calculation support for a single 
 
 Let's bring the calculator to life!
 In this step, a function called `calculate` is added that, depending on the provided operator, calculates the result of an operation with two operands.
+The local free function `calculate` is used only locally, so we add it to the anonymous namespace (see description for version 03).
 
 Next to support for `enum`/`enum class`/any integers, a `switch` statement can also be used for 8-bit character values.
 The operator token string value essentially is a character value, so we can use it here to "parse" the operator.
@@ -458,27 +465,27 @@ The following table shows the number of machine instructions per executable vers
 
 | Executable | Number of instructions |
 |:----------:|:-----------------------|
-| rpn-calculator_v00 | 122 |
-| rpn-calculator_v01 | 244 |
-| rpn-calculator_v02 | 403 |
-| rpn-calculator_v03 | 751 |
-| rpn-calculator_v04 | 937 |
-| rpn-calculator_v05 | 1048 |
-| rpn-calculator_v06 | 1390 |
-| rpn-calculator_v07 | 1607 |
-| rpn-calculator_v08 | 1430 |
-| rpn-calculator_v09 | 1594 |
-| rpn-calculator_v10 | 1814 |
-| rpn-calculator_v11 | 1869 |
-| rpn-calculator_v12 | 1877 |
-| rpn-calculator_v13 | 1907 |
-| rpn-calculator_v14 | 1907 |
-| rpn-calculator_v15 | 2059 |
-| rpn-calculator_v16 | 1730 |
-| rpn-calculator_v17 | 1740 |
-| rpn-calculator_v18 | 1428 |
+| rpn-calculator_v00 | 107 |
+| rpn-calculator_v01 | 182 |
+| rpn-calculator_v02 | 333 |
+| rpn-calculator_v03 | 627 |
+| rpn-calculator_v04 | 778 |
+| rpn-calculator_v05 | 932 |
+| rpn-calculator_v06 | 1343 |
+| rpn-calculator_v07 | 1407 |
+| rpn-calculator_v08 | 1374 |
+| rpn-calculator_v09 | 1533 |
+| rpn-calculator_v10 | 1596 |
+| rpn-calculator_v11 | 1650 |
+| rpn-calculator_v12 | 1636 |
+| rpn-calculator_v13 | 1658 |
+| rpn-calculator_v14 | 1658 |
+| rpn-calculator_v15 | 1698 |
+| rpn-calculator_v16 | 1232 |
+| rpn-calculator_v17 | 1201 |
+| rpn-calculator_v18 | 972 |
 
-The compiler used was GCC-12.3 for an AMD Ryzen 7 PRO 4750 running Ubuntu Linux 22.04.3.
+The compiler used was Clang/LLVM v18 for an AMD Ryzen 7 PRO 4750 running Ubuntu Linux 22.04.3.
 
 Please note that the number of instructions is nothing more than an indication of how "efficient" a compiler is (dependent on target machine etc.).
 It's in no way an indication of the resource-efficiency of the program itself.

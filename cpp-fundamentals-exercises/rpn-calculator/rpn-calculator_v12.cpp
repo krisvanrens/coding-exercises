@@ -1,6 +1,7 @@
 #include <fmt/core.h>
 
 #include <algorithm>
+#include <cctype>
 #include <charconv>
 #include <exception>
 #include <iostream>
@@ -103,6 +104,8 @@ struct Invalid {};
 /// Input token representation.
 using Token = std::variant<Tokens::Operand, Tokens::Operator, Tokens::Eoc, Tokens::Invalid>;
 
+namespace {
+
 ///
 /// Read a token from standard input.
 ///
@@ -110,7 +113,7 @@ using Token = std::variant<Tokens::Operand, Tokens::Operator, Tokens::Eoc, Token
 ///
 /// \throws A `std::runtime_error` if input stream reading fails.
 ///
-[[nodiscard]] static Token read_token() {
+[[nodiscard]] Token read_token() {
   static const auto loc = std::locale("en_US.UTF-8");
 
   std::string input;
@@ -153,7 +156,7 @@ using Token = std::variant<Tokens::Operand, Tokens::Operator, Tokens::Eoc, Token
 ///
 /// \throws An exception if an unsupported operator is specified.
 ///
-[[nodiscard]] static long calculate(long lhs, long rhs, char op) {
+[[nodiscard]] long calculate(long lhs, long rhs, char op) {
   switch (op) {
   case '+': return lhs + rhs;
   case '-': return lhs - rhs;
@@ -163,6 +166,8 @@ using Token = std::variant<Tokens::Operand, Tokens::Operator, Tokens::Eoc, Token
   default: throw std::invalid_argument{"unsupported operator"};
   }
 }
+
+} // namespace
 
 /// The stack memory type.
 using Memory = std::stack<long>;

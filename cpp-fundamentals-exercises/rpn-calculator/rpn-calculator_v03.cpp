@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <cctype>
+#include <cstdint>
 #include <exception>
 #include <iostream>
 #include <iterator>
@@ -13,7 +15,7 @@ constexpr std::string OPERATORS = "+-*/%";
 /// Input token representation.
 struct Token {
   /// Token type.
-  enum class Type {
+  enum class Type : uint8_t {
     Operand,  ///< Any valid operand (any arithmetic number).
     Operator, ///< Any valid operator.
     Invalid   ///< Invalid / unknown token.
@@ -22,6 +24,8 @@ struct Token {
   std::string value;
 };
 
+namespace {
+
 ///
 /// Read a token from standard input.
 ///
@@ -29,7 +33,7 @@ struct Token {
 ///
 /// \throws A `std::runtime_error` if input stream reading fails.
 ///
-[[nodiscard]] static std::optional<Token> read_token() {
+[[nodiscard]] std::optional<Token> read_token() {
   static const auto loc = std::locale("en_US.UTF-8");
 
   std::string input;
@@ -58,6 +62,8 @@ struct Token {
     return Token{.type = Token::Type::Invalid, .value = input}; // Negative number.
   }
 }
+
+} // namespace
 
 int main() {
   try {

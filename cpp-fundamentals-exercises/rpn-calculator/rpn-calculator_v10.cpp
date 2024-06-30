@@ -1,7 +1,9 @@
 #include <fmt/core.h>
 
 #include <algorithm>
+#include <cctype>
 #include <charconv>
+#include <cstdint>
 #include <exception>
 #include <iostream>
 #include <iterator>
@@ -42,7 +44,7 @@ private:
 };
 
 /// Calculator states.
-enum class States {
+enum class States : uint8_t {
   Operand1, ///< Expecting operand 1.
   Operand2, ///< Expecting operand 2.
   Operator  ///< Expecting operator.
@@ -89,6 +91,8 @@ struct Invalid {};
 /// Input token representation.
 using Token = std::variant<Tokens::Operand, Tokens::Operator, Tokens::Invalid>;
 
+namespace {
+
 ///
 /// Read a token from standard input.
 ///
@@ -96,7 +100,7 @@ using Token = std::variant<Tokens::Operand, Tokens::Operator, Tokens::Invalid>;
 ///
 /// \throws A `std::runtime_error` if input stream reading fails.
 ///
-[[nodiscard]] static std::optional<Token> read_token() {
+[[nodiscard]] std::optional<Token> read_token() {
   static const auto loc = std::locale("en_US.UTF-8");
 
   std::string input;
@@ -139,7 +143,7 @@ using Token = std::variant<Tokens::Operand, Tokens::Operator, Tokens::Invalid>;
 ///
 /// \throws An exception if an unsupported operator is specified.
 ///
-[[nodiscard]] static long calculate(long lhs, long rhs, char op) {
+[[nodiscard]] long calculate(long lhs, long rhs, char op) {
   switch (op) {
   case '+': return lhs + rhs;
   case '-': return lhs - rhs;
@@ -149,6 +153,8 @@ using Token = std::variant<Tokens::Operand, Tokens::Operator, Tokens::Invalid>;
   default: throw std::invalid_argument{"unsupported operator"};
   }
 }
+
+} // namespace
 
 /// The stack memory type.
 using Memory = std::stack<long>;

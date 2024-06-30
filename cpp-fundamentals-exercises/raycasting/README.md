@@ -483,27 +483,27 @@ The following table shows the number of machine instructions per executable vers
 
 | Executable | Number of instructions |
 |:----------:|:-----------------------|
-| raycasting_v00 | 221 |
-| raycasting_v01 | 490 |
-| raycasting_v02 | 600 |
-| raycasting_v03 | 1070 |
-| raycasting_v04 | 713 |
-| raycasting_v05 | 781 |
-| raycasting_v06 | 1054 |
-| raycasting_v07 | 1045 |
-| raycasting_v08 | 1588 |
-| raycasting_v09 | 1621 |
-| raycasting_v10 | 1687 |
-| raycasting_v11 | 1813 |
-| raycasting_v12 | 1981 |
-| raycasting_v13 | 1957 |
-| raycasting_v14 | 1972 |
-| raycasting_v15 | 1972 |
-| raycasting_v16 | 1939 |
+| raycasting_v00 | 177 |
+| raycasting_v01 | 343 |
+| raycasting_v02 | 373 |
+| raycasting_v03 | 516 |
+| raycasting_v04 | 565 |
+| raycasting_v05 | 623 |
+| raycasting_v06 | 840 |
+| raycasting_v07 | 840 |
+| raycasting_v08 | 1018 |
+| raycasting_v09 | 1049 |
+| raycasting_v10 | 1115 |
+| raycasting_v11 | 1202 |
+| raycasting_v12 | 1464 |
+| raycasting_v13 | 1437 |
+| raycasting_v14 | 1489 |
+| raycasting_v15 | 1489 |
+| raycasting_v16 | 1535 |
 
-The compiler used was GCC-12.3 for an AMD Ryzen 7 PRO 4750 running Ubuntu Linux 22.04.3.
+The compiler used was Clang/LLVM v18 for an AMD Ryzen 7 PRO 4750 running Ubuntu Linux 22.04.3.
 
-Personally I think it's pretty awesome that it is possible to express such a fun and functional program that compiles down to less than 2000 machine instructions for a regular desktop computer.
+Personally I think it's pretty awesome that it is possible to express such a fun and functional program that compiles down to about 1500 machine instructions for a regular desktop computer.
 Please note that the number of instructions is nothing more than an indication of how "efficient" a compiler is (dependent on target machine etc.).
 It's in no way an indication of the resource-efficiency of the program itself.
 
