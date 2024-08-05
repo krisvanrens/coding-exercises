@@ -29,7 +29,7 @@ Use a diff tool to reveal the difference between each of the versions, and use t
 Popular diff tools may include `diff`, `meld`, `vimdiff` or perhaps your IDE/editor of choice supports diff views.
 I do strongly recommend [`difftastic`](https://github.com/Wilfred/difftastic), which is a diff tool that actually understands language syntax.
 
-For example, to use `vimdiff` to see what's changed between versions 06 and 07:
+For example, to use `vimdiff` to see what's changed between versions 04 and 05:
 
 ```sh
 vimdiff raycasting_v04.rs raycasting_v05.rs
