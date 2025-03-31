@@ -52,6 +52,14 @@ Build a simple [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Rev
 - [Solution code README](https://krisvanrens.github.io/coding-exercises/exploring-rust-exercises/rpn-calculator)
 - [Solution code](https://github.com/krisvanrens/coding-exercises/tree/main/exploring-rust-exercises/rpn-calculator)
 
+### uLang calculator language
+
+![build status](https://codeberg.org/krisvanrens/ulang/actions/workflows/build-and-test.yml/badge.svg?branch=main)
+
+uLang (read: micro-lang) is a simple-as-possible interpreted calculator language featuring a programming language style implementation for educational purposes.
+
+Visit the [uLang repository] for all information, exercises and solution code.
+
 ## Contributions
 
 Found an error?
