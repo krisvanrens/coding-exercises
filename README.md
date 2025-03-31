@@ -58,7 +58,7 @@ Build a simple [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Rev
 
 uLang (read: micro-lang) is a simple-as-possible interpreted calculator language featuring a programming language style implementation for educational purposes.
 
-Visit the [uLang repository] for all information, exercises and solution code.
+Visit the [uLang repository](https://codeberg.org/krisvanrens/ulang) for all information, exercises and solution code.
 
 ## Contributions
 
