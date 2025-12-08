@@ -1,3 +1,6 @@
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_sign_loss)]
+
 use anyhow::Result;
 use crossterm::{
     cursor,
@@ -5,11 +8,9 @@ use crossterm::{
     execute, queue, style, terminal,
 };
 use std::{
-    f32::consts::PI,
+    f32::consts::{PI, TAU},
     io::{stdout, Write},
 };
-
-const PI2: f32 = PI * 2.0;
 
 /// The level map definition.
 const MAP: &str = "####################\
@@ -48,7 +49,7 @@ fn main() -> Result<()> {
 
     loop {
         for x in 0..width {
-            let ray_angle = player_angle - (FOV / 2.0) + (x as f32 * FOV) / width as f32;
+            let ray_angle = player_angle - (FOV / 2.0) + (f32::from(x) * FOV) / f32::from(width);
             let norm_x = ray_angle.sin();
             let norm_y = ray_angle.cos();
 
@@ -65,7 +66,8 @@ fn main() -> Result<()> {
                     || MAP.as_bytes()[(MAP_WIDTH * yy + xx) as usize] == b'#';
             }
 
-            let dist_ceiling = ((height as f32 / 2.0) - (height as f32 / dist_wall)).round() as u16;
+            let dist_ceiling =
+                ((f32::from(height) / 2.0) - (f32::from(height) / dist_wall)).round() as u16;
             let dist_floor = height - dist_ceiling;
 
             let wall_color = match dist_wall {
@@ -83,7 +85,10 @@ fn main() -> Result<()> {
                     style::Print(match y {
                         yy if (dist_ceiling..=dist_floor).contains(&yy) => wall_color,
                         yy if yy > dist_floor => {
-                            match 1.0 - (y as f32 - height as f32 / 2.0) / (height as f32 / 2.0) {
+                            match 1.0
+                                - (f32::from(y) - f32::from(height) / 2.0)
+                                    / (f32::from(height) / 2.0)
+                            {
                                 d if (0.0..=0.25).contains(&d) => "#",
                                 d if (0.25..=0.5).contains(&d) => "x",
                                 d if (0.5..=0.75).contains(&d) => "-",
@@ -106,8 +111,8 @@ fn main() -> Result<()> {
             // Collision detection: conditionally update player position.
             if !(nx > 0.0
                 && ny > 0.0
-                && nx <= MAP_WIDTH as f32
-                && ny <= MAP_HEIGHT as f32
+                && nx <= f32::from(MAP_WIDTH)
+                && ny <= f32::from(MAP_HEIGHT)
                 && MAP.as_bytes()[(MAP_WIDTH * ny as u16 + nx as u16) as usize] == b'#')
             {
                 player_x = nx;
@@ -118,16 +123,16 @@ fn main() -> Result<()> {
         if let Event::Key(e) = event::read()? {
             match e.code {
                 KeyCode::Char('w') => {
-                    move_player(0.1 * player_angle.sin(), 0.1 * player_angle.cos())
+                    move_player(0.1 * player_angle.sin(), 0.1 * player_angle.cos());
                 }
                 KeyCode::Char('s') => {
-                    move_player(-0.1 * player_angle.sin(), -0.1 * player_angle.cos())
+                    move_player(-0.1 * player_angle.sin(), -0.1 * player_angle.cos());
                 }
-                KeyCode::Char('a') => player_angle = (player_angle - 0.1 + PI2).rem_euclid(PI2),
-                KeyCode::Char('d') => player_angle = (player_angle + 0.1).rem_euclid(PI2),
+                KeyCode::Char('a') => player_angle = (player_angle - 0.1 + TAU).rem_euclid(TAU),
+                KeyCode::Char('d') => player_angle = (player_angle + 0.1).rem_euclid(TAU),
                 KeyCode::Char('q') => break,
                 _ => (),
-            };
+            }
         }
     }
 

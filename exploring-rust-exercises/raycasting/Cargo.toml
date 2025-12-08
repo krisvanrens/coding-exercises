@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.81"
-crossterm = "0.27.0"
+crossterm = "0.29.0"

@@ -1,3 +1,6 @@
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_sign_loss)]
+
 use anyhow::Result;
 use crossterm::{
     cursor,
@@ -5,12 +8,10 @@ use crossterm::{
     execute, queue, style, terminal,
 };
 use std::{
-    f32::consts::PI,
+    f32::consts::{PI, TAU},
     io::{stdout, Write},
     ops::Add,
 };
-
-const PI2: f32 = PI * 2.0;
 
 const FOV: f32 = PI / 3.0;
 const MAX_DEPTH: f32 = 15.0;
@@ -106,15 +107,15 @@ impl Player {
     }
 
     fn turn_ccw(&mut self) {
-        self.angle = (self.angle - 0.1 + PI2).rem_euclid(PI2);
+        self.angle = (self.angle - 0.1 + TAU).rem_euclid(TAU);
     }
 
     fn turn_cw(&mut self) {
-        self.angle = (self.angle + 0.1).rem_euclid(PI2);
+        self.angle = (self.angle + 0.1).rem_euclid(TAU);
     }
 }
 
-/// Distance-to-wall color (distance range [0.0 .. MAX_DEPTH]).
+/// Distance-to-wall color (distance range [0.0 .. `MAX_DEPTH`]).
 fn dist_to_wall_color(d: f32) -> &'static str {
     match d {
         x if (0.0..=(MAX_DEPTH * 0.25)).contains(&x) => "\u{2588}",
@@ -166,7 +167,7 @@ fn main() -> Result<()> {
 
     loop {
         for x in 0..width {
-            let ray_angle = p.angle - (FOV / 2.0) + (x as f32 * FOV) / width as f32;
+            let ray_angle = p.angle - (FOV / 2.0) + (f32::from(x) * FOV) / f32::from(width);
             let norm_x = ray_angle.sin();
             let norm_y = ray_angle.cos();
 
@@ -184,8 +185,8 @@ fn main() -> Result<()> {
 
                 if hit_wall {
                     let mut corners = OFFSETS.map(|(tx, ty)| {
-                        let vx = (xx + tx) as f32 - p.pos.x;
-                        let vy = (yy + ty) as f32 - p.pos.y;
+                        let vx = f32::from(xx + tx) - p.pos.x;
+                        let vy = f32::from(yy + ty) - p.pos.y;
                         let d = (vx * vx + vy * vy).sqrt();
                         (d, norm_x * vx / d + norm_y * vy / d)
                     });
@@ -196,7 +197,8 @@ fn main() -> Result<()> {
                 }
             }
 
-            let dist_ceiling = ((height as f32 / 2.0) - (height as f32 / dist_wall)).round() as u16;
+            let dist_ceiling =
+                ((f32::from(height) / 2.0) - (f32::from(height) / dist_wall)).round() as u16;
             let dist_floor = height - dist_ceiling;
             let wall_color = dist_to_wall_color(dist_wall);
 
@@ -213,7 +215,8 @@ fn main() -> Result<()> {
                             }
                         }
                         yy if yy > dist_floor => dist_to_floor_texture(
-                            1.0 - (y as f32 - height as f32 / 2.0) / (height as f32 / 2.0),
+                            1.0 - (f32::from(y) - f32::from(height) / 2.0)
+                                / (f32::from(height) / 2.0),
                         ),
                         _ => " ", // Background 'color'.
                     })
@@ -231,7 +234,7 @@ fn main() -> Result<()> {
                 KeyCode::Char('d') => p.turn_cw(),
                 KeyCode::Char('q') => break,
                 _ => (),
-            };
+            }
         }
     }
 

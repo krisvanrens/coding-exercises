@@ -1,3 +1,6 @@
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_sign_loss)]
+
 use anyhow::Result;
 use crossterm::{cursor, event, execute, queue, style, terminal};
 use std::{
@@ -41,7 +44,7 @@ fn main() -> Result<()> {
     let player_angle: f32 = 0.0;
 
     for x in 0..width {
-        let ray_angle = player_angle - (FOV / 2.0) + (x as f32 * FOV) / width as f32;
+        let ray_angle = player_angle - (FOV / 2.0) + (f32::from(x) * FOV) / f32::from(width);
         let norm_x = ray_angle.sin();
         let norm_y = ray_angle.cos();
 
@@ -58,7 +61,8 @@ fn main() -> Result<()> {
                 || MAP.as_bytes()[(MAP_WIDTH * yy + xx) as usize] == b'#';
         }
 
-        let dist_ceiling = ((height as f32 / 2.0) - (height as f32 / dist_wall)).round() as u16;
+        let dist_ceiling =
+            ((f32::from(height) / 2.0) - (f32::from(height) / dist_wall)).round() as u16;
         let dist_floor = height - dist_ceiling;
 
         for y in 0..height {

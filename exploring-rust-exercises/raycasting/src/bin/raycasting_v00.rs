@@ -1,3 +1,5 @@
+#![allow(clippy::cast_possible_truncation)]
+
 use anyhow::Result;
 use crossterm::{cursor, event, execute, queue, style, terminal};
 use std::io::{stdout, Write};
@@ -12,7 +14,7 @@ fn main() -> Result<()> {
     execute!(stdout, cursor::Hide)?;
 
     let (width, height) = terminal::size()?;
-    let msg = format!("Terminal size: {}x{} chars", width, height);
+    let msg = format!("Terminal size: {width}x{height} chars");
 
     queue!(
         stdout,

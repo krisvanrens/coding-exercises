@@ -1,3 +1,6 @@
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_sign_loss)]
+
 use std::ops::Add;
 
 /// 2D position abstraction.
@@ -9,11 +12,13 @@ pub struct Position<T> {
 
 impl<T: Copy + Add<Output = T>> Position<T> {
     /// Create a new position from coordinate values.
+    #[must_use]
     pub fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
 
     /// Create a new delta-offset position from an existing one.
+    #[must_use]
     pub fn adjusted(&self, dx: T, dy: T) -> Self {
         Position::<T>::new(self.x + dx, self.y + dy)
     }

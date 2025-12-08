@@ -1,7 +1,8 @@
 use crate::position::Position;
-use std::{f32::consts::PI, fmt};
-
-const PI2: f32 = PI * 2.0;
+use std::{
+    f32::consts::{PI, TAU},
+    fmt,
+};
 
 /// Player state.
 pub struct Player {
@@ -11,6 +12,7 @@ pub struct Player {
 
 impl Player {
     /// Create a new player with a given position and orientation angle.
+    #[must_use]
     pub fn new(pos: Position<f32>, angle: f32) -> Self {
         Self { pos, angle }
     }
@@ -37,12 +39,12 @@ impl Player {
 
     /// Turn the player counter-clockwise by a bit.
     pub fn turn_ccw(&mut self) {
-        self.angle = (self.angle - 0.1 + PI2).rem_euclid(PI2);
+        self.angle = (self.angle - 0.1).rem_euclid(TAU);
     }
 
     /// Turn the player clockwise by a bit.
     pub fn turn_cw(&mut self) {
-        self.angle = (self.angle + 0.1).rem_euclid(PI2);
+        self.angle = (self.angle + 0.1).rem_euclid(TAU);
     }
 }
 
@@ -53,7 +55,7 @@ impl fmt::Display for Player {
             f,
             "{}",
             match self.angle {
-                a if a > (PI2 - D) || a <= D => "\u{21D3}", // Downwards arrow.
+                a if a > (TAU - D) || a <= D => "\u{21D3}", // Downwards arrow.
                 a if a > D && a <= (D * 3.0) => "\u{21D8}", // South East arrow.
                 a if a > (D * 3.0) && a <= (D * 5.0) => "\u{21D2}", // Rightwards arrow.
                 a if a > (D * 5.0) && a <= (PI - D) => "\u{21D7}", // North East arrow.

@@ -1,3 +1,6 @@
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_sign_loss)]
+
 use anyhow::Result;
 use crossterm::{
     cursor,
@@ -5,14 +8,12 @@ use crossterm::{
     execute, queue, style, terminal,
 };
 use std::{
-    f32::consts::PI,
+    f32::consts::{PI, TAU},
     fmt,
     io::{stdout, Write},
     ops::Add,
     time,
 };
-
-const PI2: f32 = PI * 2.0;
 
 const FOV: f32 = PI / 3.0;
 const MAX_DEPTH: f32 = 15.0;
@@ -137,11 +138,11 @@ impl Player {
     }
 
     fn turn_ccw(&mut self) {
-        self.angle = (self.angle - 0.1 + PI2).rem_euclid(PI2);
+        self.angle = (self.angle - 0.1 + TAU).rem_euclid(TAU);
     }
 
     fn turn_cw(&mut self) {
-        self.angle = (self.angle + 0.1).rem_euclid(PI2);
+        self.angle = (self.angle + 0.1).rem_euclid(TAU);
     }
 }
 
@@ -152,7 +153,7 @@ impl fmt::Display for Player {
             f,
             "{}",
             match self.angle {
-                a if a > (PI2 - D) || a <= D => "\u{21D3}", // Downwards arrow.
+                a if a > (TAU - D) || a <= D => "\u{21D3}", // Downwards arrow.
                 a if a > D && a <= (D * 3.0) => "\u{21D8}", // South East arrow.
                 a if a > (D * 3.0) && a <= (D * 5.0) => "\u{21D2}", // Rightwards arrow.
                 a if a > (D * 5.0) && a <= (PI - D) => "\u{21D7}", // North East arrow.
@@ -165,7 +166,7 @@ impl fmt::Display for Player {
     }
 }
 
-/// Distance-to-wall color (distance range [0.0 .. MAX_DEPTH]).
+/// Distance-to-wall color (distance range [0.0 .. `MAX_DEPTH`]).
 fn dist_to_wall_color(d: f32) -> style::Color {
     let v = ((MAX_DEPTH - 1.2 * d).clamp(0.0, MAX_DEPTH) * 255.0 / MAX_DEPTH) as u8;
     style::Color::Rgb { r: v, g: v, b: v }
@@ -215,7 +216,7 @@ fn main() -> Result<()> {
         let t_start = time::Instant::now();
 
         for x in 0..width {
-            let ray_angle = p.angle - (FOV / 2.0) + (x as f32 * FOV) / width as f32;
+            let ray_angle = p.angle - (FOV / 2.0) + (f32::from(x) * FOV) / f32::from(width);
             let norm_x = ray_angle.sin();
             let norm_y = ray_angle.cos();
 
@@ -233,8 +234,8 @@ fn main() -> Result<()> {
 
                 if hit_wall {
                     let mut corners = OFFSETS.map(|(tx, ty)| {
-                        let vx = (xx + tx) as f32 - p.pos.x;
-                        let vy = (yy + ty) as f32 - p.pos.y;
+                        let vx = f32::from(xx + tx) - p.pos.x;
+                        let vy = f32::from(yy + ty) - p.pos.y;
                         let d = (vx * vx + vy * vy).sqrt();
                         (d, norm_x * vx / d + norm_y * vy / d)
                     });
@@ -245,7 +246,8 @@ fn main() -> Result<()> {
                 }
             }
 
-            let dist_ceiling = ((height as f32 / 2.0) - (height as f32 / dist_wall)).round() as u16;
+            let dist_ceiling =
+                ((f32::from(height) / 2.0) - (f32::from(height) / dist_wall)).round() as u16;
             let dist_floor = height - dist_ceiling;
             let wall_color = dist_to_wall_color(dist_wall);
 
@@ -267,12 +269,13 @@ fn main() -> Result<()> {
                                 } else {
                                     "\u{2588}" // Plain wall texture.
                                 })
-                            )?
+                            )?;
                         }
                         yy if yy > dist_floor => queue!(
                             stdout,
                             style::Print(dist_to_floor_texture(
-                                1.0 - (y as f32 - height as f32 / 2.0) / (height as f32 / 2.0),
+                                1.0 - (f32::from(y) - f32::from(height) / 2.0)
+                                    / (f32::from(height) / 2.0),
                             ))
                         )?,
                         _ => queue!(stdout, style::Print(" "))?, // Background 'color'.
@@ -310,7 +313,7 @@ fn main() -> Result<()> {
                 KeyCode::Char('d') => p.turn_cw(),
                 KeyCode::Char('q') => break,
                 _ => (),
-            };
+            }
         }
     }
 
