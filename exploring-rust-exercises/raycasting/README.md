@@ -331,6 +331,9 @@ In a production setting, it probably does not make sense to do this, but it sure
 
 This version is version 07 (the non-`const` `Map`), where we organized the single source file into a library + executable, and added documentation.
 
+Also, as a bonus, we greatly improve the playability by splitting the player movement in a X- and Y-axis component when checking wall collision.
+This makes it possible to "slide" along a wall while moving, rather than being stopped and having to back off like the previous versions.
+
 Make sure you add (concise) documentation and only expose the needed entities using `pub`.
 
 ## Some ideas for extensions
