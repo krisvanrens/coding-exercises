@@ -475,6 +475,9 @@ template<std::invocable<Position<float>> F>
 void move_down_if(F&& pred) {}
 ```
 
+Also, as a bonus, we greatly improve the playability by splitting the player movement in a X- and Y-axis component when checking wall collision.
+This makes it possible to "slide" along a wall while moving, rather than being stopped and having to back off like the previous versions.
+
 Make up your own mind as to what's the nicest solution here.
 
 ## Number of machine instructions per executable
@@ -483,25 +486,25 @@ The following table shows the number of machine instructions per executable vers
 
 | Executable | Number of instructions |
 |:----------:|:-----------------------|
-| raycasting_v00 | 177 |
-| raycasting_v01 | 343 |
-| raycasting_v02 | 373 |
-| raycasting_v03 | 516 |
-| raycasting_v04 | 565 |
-| raycasting_v05 | 623 |
-| raycasting_v06 | 840 |
-| raycasting_v07 | 840 |
-| raycasting_v08 | 1018 |
-| raycasting_v09 | 1049 |
-| raycasting_v10 | 1115 |
-| raycasting_v11 | 1202 |
-| raycasting_v12 | 1464 |
-| raycasting_v13 | 1437 |
-| raycasting_v14 | 1489 |
-| raycasting_v15 | 1489 |
-| raycasting_v16 | 1535 |
+| raycasting_v00 | 162 |
+| raycasting_v01 | 323 |
+| raycasting_v02 | 353 |
+| raycasting_v03 | 500 |
+| raycasting_v04 | 546 |
+| raycasting_v05 | 605 |
+| raycasting_v06 | 824 |
+| raycasting_v07 | 834 |
+| raycasting_v08 | 1015 |
+| raycasting_v09 | 1040 |
+| raycasting_v10 | 1113 |
+| raycasting_v11 | 1198 |
+| raycasting_v12 | 1447 |
+| raycasting_v13 | 1418 |
+| raycasting_v14 | 1480 |
+| raycasting_v15 | 1480 |
+| raycasting_v16 | 1593 |
 
-The compiler used was Clang/LLVM v18 for an AMD Ryzen 7 PRO 4750 running Ubuntu Linux 22.04.3.
+The compiler used was Clang/LLVM v21 for an AMD Ryzen 7 PRO 4750 running Ubuntu Linux 24.04.3.
 
 Personally I think it's pretty awesome that it is possible to express such a fun and functional program that compiles down to about 1500 machine instructions for a regular desktop computer.
 Please note that the number of instructions is nothing more than an indication of how "efficient" a compiler is (dependent on target machine etc.).
@@ -539,3 +542,4 @@ Feel free to add your own ideas, knock yourself out!
 - Collision detection i.c.w. a 'closed' level eliminates the need for value clamping.
 - Do we need the time handling? Why? When would we need it?
 - Ncurses is fully C, no namespaces etc. Booleans are faked using `TRUE` and `FALSE` macro definitions.
+

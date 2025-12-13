@@ -48,10 +48,14 @@ constexpr float PI        = std::numbers::pi_v<float>;
 constexpr float PI2       = PI * 2.0f;
 constexpr float FOV       = PI / 3.0f; // Field of view in [radians].
 constexpr float MAX_DEPTH = 15.0f;     // Maximum visible depth in [map block units].
+constexpr float RAY_STEP  = 0.1f;
 
-/// Any arithmetic type (scalar or floating-point).
+constexpr float MOVE_SPEED   = 0.1f;
+constexpr float ROTATE_SPEED = 0.1f; // [radians].
+
+/// Any arithmetic type (scalar or floating-point, but excluding `bool`).
 template<typename T>
-concept arithmetic = std::is_arithmetic_v<T>;
+concept arithmetic = std::is_arithmetic_v<T> && !std::is_same_v<T, bool>;
 
 /// 2D position.
 template<arithmetic T>
@@ -73,7 +77,7 @@ struct Position {
     , y{static_cast<T>(std::round(p.y))} {
   }
 
-  constexpr Position<T> adjusted(T dx, T dy) {
+  [[nodiscard]] constexpr Position<T> adjusted(T dx, T dy) {
     return Position(x + dx, y + dy);
   }
 
@@ -205,25 +209,41 @@ struct Player {
   }
 
   void move_up_if(std::invocable<Position<float>> auto&& pred) {
-    const auto pos_new = pos.adjusted(0.1f * std::sin(angle), 0.1f * std::cos(angle));
-    if (pred(pos_new)) {
-      pos = pos_new;
-    }
+    move_if(std::forward<decltype(pred)>(pred), MOVE_SPEED);
   }
 
   void move_down_if(std::invocable<Position<float>> auto&& pred) {
-    const auto pos_new = pos.adjusted(-0.1f * std::sin(angle), -0.1f * std::cos(angle));
-    if (pred(pos_new)) {
+    move_if(std::forward<decltype(pred)>(pred), -MOVE_SPEED);
+  }
+
+  void move_if(std::invocable<Position<float>> auto&& pred, float speed) {
+    const float dx = speed * std::sin(angle);
+    const float dy = speed * std::cos(angle);
+
+    // Try full diagonal movement.
+    if (const auto pos_new = pos.adjusted(dx, dy); pred(pos_new)) {
+      pos = pos_new;
+      return;
+    }
+
+    // Try sliding along x-axis if diagonal blocked.
+    if (const auto pos_new = pos.adjusted(dx, 0.0f); pred(pos_new)) {
+      pos = pos_new;
+      return;
+    }
+
+    // Try sliding along y-axis if diagonal blocked.
+    if (const auto pos_new = pos.adjusted(0.0f, dy); pred(pos_new)) {
       pos = pos_new;
     }
   }
 
   void turn_ccw() {
-    angle = std::fmod(angle - 0.1f + PI2, PI2);
+    angle = std::fmod(angle - ROTATE_SPEED + PI2, PI2);
   }
 
   void turn_cw() {
-    angle = std::fmod(angle + 0.1f, PI2);
+    angle = std::fmod(angle + ROTATE_SPEED, PI2);
   }
 
   Position<float> pos;   // Current position in [map block units].
@@ -295,7 +315,7 @@ int main() {
       s.print(p.pos, angle_to_char(p.angle));
 
       for (unsigned int x = 0; x < s.width; x++) {
-        const float ray_angle = p.angle - (FOV / 2) + (static_cast<float>(x) * FOV) / static_cast<float>(s.width);
+        const float ray_angle = p.angle - (FOV / 2) + ((static_cast<float>(x) * FOV) / static_cast<float>(s.width));
         const float norm_x    = std::sin(ray_angle);
         const float norm_y    = std::cos(ray_angle);
 
@@ -303,10 +323,10 @@ int main() {
         bool  hit       = false; // Indicates 'ray hit'.
         bool  bound     = false; // Indicates wall block boundary.
         while (!hit && (dist_wall < MAX_DEPTH)) {
-          dist_wall += 0.1f;
+          dist_wall += RAY_STEP;
 
-          const int xx = static_cast<int>(std::round(p.pos.x + norm_x * dist_wall));
-          const int yy = static_cast<int>(std::round(p.pos.y + norm_y * dist_wall));
+          const int xx = static_cast<int>(std::round(p.pos.x + (norm_x * dist_wall)));
+          const int yy = static_cast<int>(std::round(p.pos.y + (norm_y * dist_wall)));
 
           const bool hit_wall = MAP.is_wall({xx, yy});
           hit                 = MAP.is_oob({xx, yy}) || hit_wall;
@@ -316,10 +336,10 @@ int main() {
 
             for (int tx = 0; tx < 2; tx++) {
               for (int ty = 0; ty < 2; ty++) {
-                const float vx                                    = static_cast<float>(xx + tx) - p.pos.x;
-                const float vy                                    = static_cast<float>(yy + ty) - p.pos.y;
-                const float d                                     = std::sqrt(vx * vx + vy * vy);
-                corners.at(static_cast<std::size_t>(ty * 2 + tx)) = std::make_pair(d, (norm_x * vx / d) + (norm_y * vy / d));
+                const float vx                                      = static_cast<float>(xx + tx) - p.pos.x;
+                const float vy                                      = static_cast<float>(yy + ty) - p.pos.y;
+                const float d                                       = std::sqrt((vx * vx) + (vy * vy));
+                corners.at(static_cast<std::size_t>((ty * 2) + tx)) = std::make_pair(d, ((norm_x * vx) / d) + ((norm_y * vy) / d));
               }
             }
 

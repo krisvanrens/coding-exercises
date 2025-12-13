@@ -12,6 +12,7 @@ extern "C" {
 constexpr float PI        = std::numbers::pi_v<float>;
 constexpr float FOV       = PI / 3.0f; // Field of view in [radians].
 constexpr float MAX_DEPTH = 15.0f;     // Maximum visible depth in [map block units].
+constexpr float RAY_STEP  = 0.1f;
 
 int main() {
   if (std::setlocale(LC_ALL, "") == nullptr) { // Required for Unicode support.
@@ -59,10 +60,10 @@ int main() {
     float dist_wall = 0.0f;
     bool  hit       = false; // Indicates 'ray hit'.
     while (!hit && (dist_wall < MAX_DEPTH)) {
-      dist_wall += 0.1f;
+      dist_wall += RAY_STEP;
 
-      const int xx = static_cast<int>(std::round(player_x + norm_x * dist_wall));
-      const int yy = static_cast<int>(std::round(player_y + norm_y * dist_wall));
+      const int xx = static_cast<int>(std::round(player_x + (norm_x * dist_wall)));
+      const int yy = static_cast<int>(std::round(player_y + (norm_y * dist_wall)));
 
       hit = xx < 0 || yy < 0 || xx >= static_cast<int>(MAP_WIDTH) || yy >= static_cast<int>(MAP_HEIGHT)
             || MAP.at((MAP_WIDTH * static_cast<unsigned int>(yy)) + static_cast<unsigned int>(xx)) == '#';

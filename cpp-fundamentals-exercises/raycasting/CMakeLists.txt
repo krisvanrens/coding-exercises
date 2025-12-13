@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(raycasting)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CURSES_NEED_WIDE True) # Use Ncursesw for Unicode support.

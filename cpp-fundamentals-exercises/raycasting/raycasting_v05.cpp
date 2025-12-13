@@ -15,6 +15,10 @@ constexpr float PI        = std::numbers::pi_v<float>;
 constexpr float PI2       = PI * 2.0f;
 constexpr float FOV       = PI / 3.0f; // Field of view in [radians].
 constexpr float MAX_DEPTH = 15.0f;     // Maximum visible depth in [map block units].
+constexpr float RAY_STEP  = 0.1f;
+
+constexpr float MOVE_SPEED   = 0.1f;
+constexpr float ROTATE_SPEED = 0.1f; // [radians].
 
 /// Wrapper around the default 'stdscr' window in ncurses.
 struct Screen {
@@ -107,10 +111,10 @@ int main() {
       float dist_wall = 0.0f;
       bool  hit       = false; // Indicates 'ray hit'.
       while (!hit && (dist_wall < MAX_DEPTH)) {
-        dist_wall += 0.1f;
+        dist_wall += RAY_STEP;
 
-        const int xx = static_cast<int>(std::round(player_x + norm_x * dist_wall));
-        const int yy = static_cast<int>(std::round(player_y + norm_y * dist_wall));
+        const int xx = static_cast<int>(std::round(player_x + (norm_x * dist_wall)));
+        const int yy = static_cast<int>(std::round(player_y + (norm_y * dist_wall)));
 
         hit = xx < 0 || yy < 0 || xx >= static_cast<int>(MAP_WIDTH) || yy >= static_cast<int>(MAP_HEIGHT)
               || MAP.at((MAP_WIDTH * static_cast<unsigned int>(yy)) + static_cast<unsigned int>(xx)) == '#';
@@ -160,29 +164,29 @@ int main() {
     switch (s.get_key()) {
       using enum Screen::Key;
     case Up:
-      player_x += 0.1f * std::sin(player_angle);
-      player_y += 0.1f * std::cos(player_angle);
+      player_x += MOVE_SPEED * std::sin(player_angle);
+      player_y += MOVE_SPEED * std::cos(player_angle);
 
       // Collision detection: undo the previous operation.
       if ((player_x > 0.0f) && (player_y > 0.0f) && (static_cast<unsigned int>(player_x) <= MAP_WIDTH) && (static_cast<unsigned int>(player_y) <= MAP_HEIGHT)
           && MAP.at((MAP_WIDTH * static_cast<unsigned int>(std::round(player_y))) + static_cast<unsigned int>(std::round(player_x))) == '#') {
-        player_x -= 0.1f * std::sin(player_angle);
-        player_y -= 0.1f * std::cos(player_angle);
+        player_x -= MOVE_SPEED * std::sin(player_angle);
+        player_y -= MOVE_SPEED * std::cos(player_angle);
       }
       break;
     case Down:
-      player_x -= 0.1f * std::sin(player_angle);
-      player_y -= 0.1f * std::cos(player_angle);
+      player_x -= MOVE_SPEED * std::sin(player_angle);
+      player_y -= MOVE_SPEED * std::cos(player_angle);
 
       // Collision detection: undo the previous operation.
       if ((player_x > 0.0f) && (player_y > 0.0f) && (static_cast<unsigned int>(player_x) <= MAP_WIDTH) && (static_cast<unsigned int>(player_y) <= MAP_HEIGHT)
           && MAP.at((MAP_WIDTH * static_cast<unsigned int>(std::round(player_y))) + static_cast<unsigned int>(std::round(player_x))) == '#') {
-        player_x += 0.1f * std::sin(player_angle);
-        player_y += 0.1f * std::cos(player_angle);
+        player_x += MOVE_SPEED * std::sin(player_angle);
+        player_y += MOVE_SPEED * std::cos(player_angle);
       }
       break;
-    case Left: player_angle = std::fmod(player_angle - 0.1f + PI2, PI2); break;
-    case Right: player_angle = std::fmod(player_angle + 0.1f, PI2); break;
+    case Left: player_angle = std::fmod(player_angle - ROTATE_SPEED + PI2, PI2); break;
+    case Right: player_angle = std::fmod(player_angle + ROTATE_SPEED, PI2); break;
     case Other: break;
     case Quit: return EXIT_SUCCESS;
     }
