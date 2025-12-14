@@ -8,7 +8,7 @@ use std::{
 const MOVE_SPEED: f32 = 0.1;
 
 /// Player rotation speed in [radians].
-const ROTATION_SPEED: f32 = 0.1;
+const ROTATE_SPEED: f32 = 0.1;
 
 /// Player state.
 pub struct Player {
@@ -61,12 +61,12 @@ impl Player {
 
     /// Turn the player counter-clockwise by a bit.
     pub fn turn_ccw(&mut self) {
-        self.angle = (self.angle - ROTATION_SPEED).rem_euclid(TAU);
+        self.angle = (self.angle - ROTATE_SPEED).rem_euclid(TAU);
     }
 
     /// Turn the player clockwise by a bit.
     pub fn turn_cw(&mut self) {
-        self.angle = (self.angle + ROTATION_SPEED).rem_euclid(TAU);
+        self.angle = (self.angle + ROTATE_SPEED).rem_euclid(TAU);
     }
 }
 

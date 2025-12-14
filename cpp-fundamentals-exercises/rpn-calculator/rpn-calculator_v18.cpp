@@ -26,7 +26,7 @@ struct overload : Ts... {
 // template<typename... Ts> overload(Ts...) -> overload<Ts...>;
 
 /// The set of allowed operators.
-constexpr std::string OPERATORS = "+-*/%";
+constexpr std::string_view OPERATORS = "+-*/%";
 
 /// Calculation-related specific error type.
 class calculation_error final : public std::exception {
@@ -132,6 +132,7 @@ namespace {
 ///
 /// \returns The read token.
 ///
+/// \throws A `std::runtime_error` if the `en_US.UTF-8` locale cannot be found.
 /// \throws A `std::runtime_error` if input stream reading fails.
 ///
 [[nodiscard]] Token read_token() {
@@ -164,8 +165,8 @@ namespace {
 /// \note There is no overflow handling in place!
 ///
 /// \param lhs Left-hand side input value.
-/// \param lhs Right-hand side input value.
-/// \param lhs Operator.
+/// \param rhs Right-hand side input value.
+/// \param op Operator.
 ///
 /// \returns Calculation result.
 ///
@@ -184,7 +185,9 @@ template<typename T>
 
     return lhs / rhs;
   case '%':
-    if constexpr (!std::is_floating_point_v<T>) {
+    if constexpr (std::is_floating_point_v<T>) {
+      throw std::invalid_argument{"modulo not supported for floating-point"};
+    } else {
       if (rhs == 0) {
         throw calculation_error{"division by zero"};
       }
@@ -216,7 +219,10 @@ int main() {
           [&](States::Operand1&) {
             std::visit(overload{
               [&](const Tokens::Operand& o) {
-                m.push(o.parse<float>());
+                if (!m.push(o.parse<float>())) {
+                  throw std::logic_error{"failed to push operand 1 onto stack"};
+                }
+
                 s = States::Operand2{};
               },
               [](const Tokens::Operator&) { throw calculation_error{"expected operand 1, got operator"};           },
@@ -226,7 +232,10 @@ int main() {
           [&](States::Operand2&) {
             std::visit(overload{
               [&](const Tokens::Operand& o) {
-                m.push(o.parse<float>());
+                if (!m.push(o.parse<float>())) {
+                  throw std::logic_error{"failed to push operand 2 onto stack"};
+                }
+
                 s = States::Operator{};
               },
               [&](const Tokens::Eoc&) {
@@ -248,7 +257,9 @@ int main() {
 
                 const auto rhs = m.pop().value();
                 const auto lhs = m.pop().value();
-                m.push(calculate(lhs, rhs, o.op));
+                if (!m.push(calculate(lhs, rhs, o.op))) {
+                  throw std::logic_error{"failed to push calculation result onto stack"};
+                }
 
                 got_operator = true;
                 s = States::Operand2{};

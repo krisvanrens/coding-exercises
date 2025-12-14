@@ -1,19 +1,21 @@
-#include <fmt/core.h>
-
 #include <algorithm>
 #include <cctype>
 #include <charconv>
 #include <cmath>
 #include <exception>
+#include <expected>
+#include <format>
 #include <iostream>
 #include <iterator>
 #include <limits>
 #include <locale>
+#include <print>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <system_error>
 #include <type_traits>
+#include <utility>
 #include <variant>
 
 #include "stack.hpp"
@@ -23,9 +25,6 @@ template<typename... Ts>
 struct overload : Ts... {
   using Ts::operator()...;
 };
-
-/// Class template argument (CTAD) deduction guide, not needed for C++20 and later.
-// template<typename... Ts> overload(Ts...) -> overload<Ts...>;
 
 /// The set of allowed operators.
 constexpr std::string_view OPERATORS = "+-*/%";
@@ -95,18 +94,18 @@ struct Operand {
         // Check for invalid cross-type parse requests.
         if constexpr (std::is_integral_v<T> && !std::is_floating_point_v<T>) {
           if (std::fmod(v, 1.0) > std::numeric_limits<double>::epsilon()) {
-            throw std::logic_error{fmt::format("failed to parse input '{}': invalid cross-type parse", value)};
+            throw std::logic_error{std::format("failed to parse input '{}': invalid cross-type parse", value)};
           }
         }
 
         // Check for overflow errors.
         if (v > static_cast<double>(std::numeric_limits<T>::max()) || v < static_cast<double>(std::numeric_limits<T>::lowest())) {
-          throw calculation_error{fmt::format("failed to parse input '{}': parse type value overflow", value)};
+          throw calculation_error{std::format("failed to parse input '{}': parse type value overflow", value)};
         }
 
         return static_cast<T>(v);
       } else {
-        throw calculation_error{fmt::format("failed to parse input '{}'", value)};
+        throw calculation_error{std::format("failed to parse input '{}'", value)};
       }
     }
 
@@ -135,19 +134,18 @@ namespace {
 ///
 /// Read a token from standard input.
 ///
-/// \returns The read token.
+/// \returns The read token, or an error message.
 ///
 /// \throws A `std::runtime_error` if the `en_US.UTF-8` locale cannot be found.
-/// \throws A `std::runtime_error` if input stream reading fails.
 ///
-[[nodiscard]] Token read_token() {
+[[nodiscard]] std::expected<Token, std::string> read_token() {
   static const auto loc = std::locale("en_US.UTF-8");
 
   std::string input;
   std::cin >> input;
 
   if (!std::cin.good() && !std::cin.eof()) {
-    throw std::runtime_error{"failed to read standard input stream"};
+    return std::unexpected{"failed to read standard input stream"};
   }
 
   if (std::cin.eof()) { // Handles Ctrl-D as well.
@@ -163,7 +161,7 @@ namespace {
     return Tokens::Operand{input}; // Positive number.
   } else if ((input.length() > 1) && (input.starts_with('-')) && std::all_of(std::next(input.begin()), input.end(), is_digit)) {
     return Tokens::Operand{input}; // Negative number.
-  } else if ((input.length() == 1) && std::ranges::any_of(OPERATORS, [&](const char& c) { return input[0] == c; })) {
+  } else if ((input.length() == 1) && OPERATORS.contains(input[0])) {
     return Tokens::Operator{input[0]};
   } else {
     return Tokens::Invalid{};
@@ -198,15 +196,16 @@ template<typename T>
   case '%':
     if constexpr (std::is_floating_point_v<T>) {
       throw std::invalid_argument{"modulo not supported for floating-point"};
-    }
+    } else {
+      if (rhs == 0) {
+        throw calculation_error{"division by zero"};
+      }
 
-    if (rhs == 0) {
-      throw calculation_error{"division by zero"};
+      return lhs % rhs;
     }
-
-    return lhs % rhs;
-  default: throw std::invalid_argument{"unsupported operator"};
   }
+
+  std::unreachable();
 }
 
 } // namespace
@@ -222,7 +221,13 @@ int main() {
     Memory m;
 
     while (!stop) {
-      const Token t = read_token();
+      auto token_result = read_token();
+      if (!token_result) {
+        std::println(std::cerr, "Caught exception: {}", token_result.error());
+        break;
+      }
+
+      const Token& t = token_result.value();
 
       try {
         // clang-format off
@@ -287,18 +292,18 @@ int main() {
               throw std::logic_error{"expected only a single result in memory"};
             }
 
-            std::cout << m.pop().value() << '\n';
+            std::println("{}", m.pop().value());
 
             stop = true; // Bail out.
           }
         }, s);
         // clang-format on
       } catch (const calculation_error& e) {
-        std::cout << "Error: " << e.what() << '\n';
+        std::println("Error: {}", e.what());
         stop = true;
       }
     }
   } catch (const std::exception& e) {
-    std::cerr << "Caught exception: " << e.what() << '\n';
+    std::println(std::cerr, "Caught exception: {}", e.what());
   }
 }

@@ -14,7 +14,7 @@
 #include <system_error>
 
 /// The set of allowed operators.
-constexpr std::string OPERATORS = "+-*/%";
+constexpr std::string_view OPERATORS = "+-*/%";
 
 /// Input token representation.
 struct Token {
@@ -56,6 +56,7 @@ namespace {
 ///
 /// \returns The read token, or an empty optional upon EOF.
 ///
+/// \throws A `std::runtime_error` if the `en_US.UTF-8` locale cannot be found.
 /// \throws A `std::runtime_error` if input stream reading fails.
 ///
 [[nodiscard]] std::optional<Token> read_token() {

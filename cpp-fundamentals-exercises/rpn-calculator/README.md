@@ -10,7 +10,7 @@ The goal is to learn from this coding exercise, so just consider my approach to 
 
 ## Build requirements
 
-A compiler able to deal with C++20.
+A compiler able to deal with C++20 and/or C++23.
 You might need a system-installed [{fmt} formatting library](https://github.com/fmtlib/fmt) if your standard library doesn't implement the `<format>` module/header.
 You can manually build it, or install `libfmt-dev` for any package-managed Linux environment (this will also install the Cmake module).
 
@@ -131,7 +131,7 @@ There is no input, and Ctrl-D caused an EOF immediately.
 
 **Test 4**: Feed an empty "here string" in the command-line:
 
-*Note: This can be tested using a regular Linux command-line shell.*
+_Note: This can be tested using a regular Linux command-line shell._
 
 ```sh
 $ ./rpn-calculator_v01 <<< ""
@@ -196,7 +196,7 @@ Two remarks:
 #### Operators
 
 Operators are simply tested against a set of known-supported operators, defined as a `constexpr std::string` globally.
-Global variables are bad generally speaking, but that is mostly the case when using global *mutable* state.
+Global variables are bad generally speaking, but that is mostly the case when using global _mutable_ state.
 Global immutable definitions are fine most of the time.
 
 To test for a valid operator input, the [standard library algorithm `any_of`](https://en.cppreference.com/w/cpp/algorithm/ranges/all_any_none_of) is used on the operator set in combination with an input length test.
@@ -325,7 +325,7 @@ The most drawbacks of the previous implementation of `Token` are:
   - An invalid token without a value at all.
 - We can call `parse` on any token, even an invalid one.
 
-What we will do is create a separate *type* for each of the token types.
+What we will do is create a separate _type_ for each of the token types.
 This token-specific-type will then dictate what fields it has, or has not, and what functions it has.
 
 But we cannot use a `switch` statement on types.
@@ -421,7 +421,7 @@ Also, to limit the scope of the implementation, I defined a concept called `sign
 
 This version is the previous version including the use of a custom stack container implementation.
 
-Up until this verison, we used the `std::stack` container adapter from the C++ standard library.
+Up until this version, we used the `std::stack` container adapter from the C++ standard library.
 However, in our limited-scope RPN, calculator, we only need a stack of a fixed maximum size of two elements.
 This can probably be implemented much more efficiently than the fully generic `std::stack` based on a `std::deque`.
 
@@ -430,7 +430,7 @@ We can create a specialization of `Stack` that is specialized on a maximum stack
 
 If you look at the table in the section at the bottom showing the amount of machine instructions for each version of the calculator, you'll see that we safe about 350 machine instructions with this change.
 Again, this doesn't mean the program is any more resource-efficient or faster, it just means there is less machine code in the compiler output.
-However, in this case we can probably safely assume we really win both in performance *and* efficiency at the same time.
+However, in this case we can probably safely assume we really win both in performance _and_ efficiency at the same time.
 
 ### Version 17: Adding unit tests
 
@@ -455,35 +455,52 @@ I included this version because it brings to light some of the design decisions 
 The `read_token` function for example, makes all kinds of assumptions on the representation of a token for validation.
 This does not hold anymore for floating-point input which can look quite different from (signed) integer input, like scientific notation `3.433e2`.
 This simply means we must shift the whole invalidation responsibility of an operand to the `parse` function.
-This invalidation *needed to be* in `read_token` for integer-only input, because we always parsed any input string as a `long double` anyway.
+This invalidation _needed to be_ in `read_token` for integer-only input, because we always parsed any input string as a `long double` anyway.
 At first you'll find that `std::from_chars` is surprisingly relaxed at accepting input.
 We need some additional checking to validate the whole operand.
+
+### Version 19: C++23 features
+
+This version is version 16 using C++23 features where possible.
+
+There are three major things w.r.t. version 16 that changed:
+
+- Use of `std::format`/`std::println` for direct string formatting/printing (instead of `iostream`),
+- Use of `std::unreachable` to indicate unreachable code (and allow the compiler to optimize better),
+- Use of `std::expected` for error handling.
+
+We must add a note about binary size here as well.
+If you take a look at the table in the next section, you'll note that version 19 has about 10x the amount of instructions of version 16, even though the code itself is not that much different.
+This mainly has to do with the code that `std::print` and `std::format` pull in in version 19, where in version 16 the `{fmt}` library was linked externally.
+This doesn't mean the code is much slower, it mainly provides us information about *where* the machine code is actually placed in the binary.
+If binary size is of any concern for your project, this might be a consideration to move to alternative string formatting/printing libraries like I/O streams or even `printf`.
 
 ## Number of machine instructions per executable
 
 The following table shows the number of machine instructions per executable version:
 
-| Executable | Number of instructions |
-|:----------:|:-----------------------|
-| rpn-calculator_v00 | 107 |
-| rpn-calculator_v01 | 182 |
-| rpn-calculator_v02 | 333 |
-| rpn-calculator_v03 | 627 |
-| rpn-calculator_v04 | 778 |
-| rpn-calculator_v05 | 932 |
-| rpn-calculator_v06 | 1343 |
-| rpn-calculator_v07 | 1407 |
-| rpn-calculator_v08 | 1374 |
-| rpn-calculator_v09 | 1533 |
-| rpn-calculator_v10 | 1596 |
-| rpn-calculator_v11 | 1650 |
-| rpn-calculator_v12 | 1636 |
-| rpn-calculator_v13 | 1658 |
-| rpn-calculator_v14 | 1658 |
-| rpn-calculator_v15 | 1698 |
-| rpn-calculator_v16 | 1232 |
-| rpn-calculator_v17 | 1201 |
-| rpn-calculator_v18 | 972 |
+|     Executable     | Number of instructions |
+| :----------------: | :--------------------- |
+| rpn-calculator_v00 | 90                     |
+| rpn-calculator_v01 | 171                    |
+| rpn-calculator_v02 | 356                    |
+| rpn-calculator_v03 | 671                    |
+| rpn-calculator_v04 | 829                    |
+| rpn-calculator_v05 | 986                    |
+| rpn-calculator_v06 | 1428                   |
+| rpn-calculator_v07 | 1502                   |
+| rpn-calculator_v08 | 1450                   |
+| rpn-calculator_v09 | 1625                   |
+| rpn-calculator_v10 | 1730                   |
+| rpn-calculator_v11 | 1755                   |
+| rpn-calculator_v12 | 1770                   |
+| rpn-calculator_v13 | 1793                   |
+| rpn-calculator_v14 | 1793                   |
+| rpn-calculator_v15 | 1833                   |
+| rpn-calculator_v16 | 1330                   |
+| rpn-calculator_v17 | 1317                   |
+| rpn-calculator_v18 | 1020                   |
+| rpn-calculator_v19 | 14323                  |
 
 The compiler used was Clang/LLVM v18 for an AMD Ryzen 7 PRO 4750 running Ubuntu Linux 22.04.3.
 
@@ -510,5 +527,4 @@ Here are some ideas to further extend the exercise:
 - Big numbers handling, larger than 64 bits (e.g. through GMP).
 - Add a network interface for input.
 
-Also, if you liked this exercise, and need more challenging, build yourself a [Forth language](https://en.wikipedia.org/wiki/Forth_(programming_language)) interpreter!
-
+Also, if you liked this exercise, and need more challenging, build yourself a [Forth language](<https://en.wikipedia.org/wiki/Forth_(programming_language)>) interpreter!

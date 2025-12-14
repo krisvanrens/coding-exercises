@@ -15,7 +15,7 @@
 #include <system_error>
 
 /// The set of allowed operators.
-constexpr std::string OPERATORS = "+-*/%";
+constexpr std::string_view OPERATORS = "+-*/%";
 
 /// Input token representation.
 struct Token {
@@ -57,6 +57,7 @@ namespace {
 ///
 /// \returns The read token, or an empty optional upon EOF.
 ///
+/// \throws A `std::runtime_error` if the `en_US.UTF-8` locale cannot be found.
 /// \throws A `std::runtime_error` if input stream reading fails.
 ///
 [[nodiscard]] std::optional<Token> read_token() {
@@ -83,9 +84,9 @@ namespace {
   } else if ((input.length() > 1) && (input.starts_with('-')) && std::all_of(std::next(input.begin()), input.end(), is_digit)) {
     return Token{.type = Token::Type::Operand, .value = input}; // Negative number.
   } else if ((input.length() == 1) && std::ranges::any_of(OPERATORS, [&](const char& c) { return input[0] == c; })) {
-    return Token{.type = Token::Type::Operator, .value = input}; // Negative number.
+    return Token{.type = Token::Type::Operator, .value = input};
   } else {
-    return Token{.type = Token::Type::Invalid, .value = input}; // Negative number.
+    return Token{.type = Token::Type::Invalid, .value = input};
   }
 }
 
@@ -95,8 +96,8 @@ namespace {
 /// \note There is no overflow handling in place!
 ///
 /// \param lhs Left-hand side input value.
-/// \param lhs Right-hand side input value.
-/// \param lhs Operator.
+/// \param rhs Right-hand side input value.
+/// \param op Operator.
 ///
 /// \returns Calculation result.
 ///

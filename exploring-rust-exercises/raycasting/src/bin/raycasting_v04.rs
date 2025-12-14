@@ -15,6 +15,10 @@ use std::{
 
 const FOV: f32 = PI / 3.0;
 const MAX_DEPTH: f32 = 15.0;
+const RAY_STEP: f32 = 0.1;
+
+const MOVE_SPEED: f32 = 0.1;
+const ROTATE_SPEED: f32 = 0.1;
 
 #[derive(Clone, Copy)]
 struct Position<T> {
@@ -88,27 +92,28 @@ impl Player {
     fn move_up_if(&mut self, pred: impl FnOnce(Position<f32>) -> bool) {
         let new_pos = self
             .pos
-            .adjusted(0.1 * self.angle.sin(), 0.1 * self.angle.cos());
+            .adjusted(MOVE_SPEED * self.angle.sin(), MOVE_SPEED * self.angle.cos());
         if pred(new_pos) {
             self.pos = new_pos;
         }
     }
 
     fn move_down_if(&mut self, pred: impl FnOnce(Position<f32>) -> bool) {
-        let new_pos = self
-            .pos
-            .adjusted(-0.1 * self.angle.sin(), -0.1 * self.angle.cos());
+        let new_pos = self.pos.adjusted(
+            -MOVE_SPEED * self.angle.sin(),
+            -MOVE_SPEED * self.angle.cos(),
+        );
         if pred(new_pos) {
             self.pos = new_pos;
         }
     }
 
     fn turn_ccw(&mut self) {
-        self.angle = (self.angle - 0.1 + TAU).rem_euclid(TAU);
+        self.angle = (self.angle - ROTATE_SPEED + TAU).rem_euclid(TAU);
     }
 
     fn turn_cw(&mut self) {
-        self.angle = (self.angle + 0.1).rem_euclid(TAU);
+        self.angle = (self.angle + ROTATE_SPEED).rem_euclid(TAU);
     }
 }
 
@@ -171,7 +176,7 @@ fn main() -> Result<()> {
             let mut dist_wall: f32 = 0.0;
             let mut hit = false;
             while !hit && dist_wall < MAX_DEPTH {
-                dist_wall += 0.1;
+                dist_wall += RAY_STEP;
 
                 let xx = (p.pos.x + norm_x * dist_wall) as u16;
                 let yy = (p.pos.y + norm_y * dist_wall) as u16;

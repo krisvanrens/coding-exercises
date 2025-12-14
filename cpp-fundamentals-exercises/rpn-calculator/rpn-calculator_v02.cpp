@@ -6,7 +6,7 @@
 #include <string>
 
 /// The set of allowed operators.
-constexpr std::string OPERATORS = "+-*/%";
+constexpr std::string_view OPERATORS = "+-*/%";
 
 int main() {
   const auto loc = std::locale("en_US.UTF-8");

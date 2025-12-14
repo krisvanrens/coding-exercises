@@ -31,6 +31,10 @@ const MAP_HEIGHT: u16 = 12;
 
 const FOV: f32 = PI / 3.0;
 const MAX_DEPTH: f32 = 15.0;
+const RAY_STEP: f32 = 0.1;
+
+const MOVE_SPEED: f32 = 0.1;
+const ROTATE_SPEED: f32 = 0.1;
 
 fn main() -> Result<()> {
     terminal::enable_raw_mode()?;
@@ -56,7 +60,7 @@ fn main() -> Result<()> {
             let mut dist_wall: f32 = 0.0;
             let mut hit = false;
             while !hit && dist_wall < MAX_DEPTH {
-                dist_wall += 0.1;
+                dist_wall += RAY_STEP;
 
                 let xx = (player_x + norm_x * dist_wall) as u16;
                 let yy = (player_y + norm_y * dist_wall) as u16;
@@ -123,13 +127,23 @@ fn main() -> Result<()> {
         if let Event::Key(e) = event::read()? {
             match e.code {
                 KeyCode::Char('w') => {
-                    move_player(0.1 * player_angle.sin(), 0.1 * player_angle.cos());
+                    move_player(
+                        MOVE_SPEED * player_angle.sin(),
+                        MOVE_SPEED * player_angle.cos(),
+                    );
                 }
                 KeyCode::Char('s') => {
-                    move_player(-0.1 * player_angle.sin(), -0.1 * player_angle.cos());
+                    move_player(
+                        -MOVE_SPEED * player_angle.sin(),
+                        -MOVE_SPEED * player_angle.cos(),
+                    );
                 }
-                KeyCode::Char('a') => player_angle = (player_angle - 0.1 + TAU).rem_euclid(TAU),
-                KeyCode::Char('d') => player_angle = (player_angle + 0.1).rem_euclid(TAU),
+                KeyCode::Char('a') => {
+                    player_angle = (player_angle - ROTATE_SPEED + TAU).rem_euclid(TAU);
+                }
+                KeyCode::Char('d') => {
+                    player_angle = (player_angle + ROTATE_SPEED).rem_euclid(TAU);
+                }
                 KeyCode::Char('q') => break,
                 _ => (),
             }

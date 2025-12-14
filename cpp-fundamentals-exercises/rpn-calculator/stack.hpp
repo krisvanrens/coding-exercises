@@ -7,7 +7,7 @@
 template<typename Type, std::size_t MaxSize>
 class Stack {
 public:
-  bool push(Type&& element);
+  [[nodiscard]] bool                push(Type&& element);
   [[nodiscard]] std::optional<Type> pop();
 
   [[nodiscard]] std::size_t size() const noexcept;
@@ -49,14 +49,14 @@ std::size_t Stack<Type, MaxSize>::size() const noexcept {
 template<typename Type>
 class Stack<Type, 2> {
 public:
-  bool push(Type&& element);
+  [[nodiscard]] bool                push(Type&& element);
   [[nodiscard]] std::optional<Type> pop();
 
   [[nodiscard]] std::size_t size() const noexcept;
 
 private:
   std::array<Type, 2> data_;
-  std::size_t sp_{};
+  std::size_t         sp_{};
 };
 
 template<typename Type>

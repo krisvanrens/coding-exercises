@@ -27,6 +27,7 @@ const MAP_HEIGHT: u16 = 12;
 
 const FOV: f32 = PI / 3.0;
 const MAX_DEPTH: f32 = 15.0;
+const RAY_STEP: f32 = 0.1;
 
 fn main() -> Result<()> {
     terminal::enable_raw_mode()?;
@@ -51,7 +52,7 @@ fn main() -> Result<()> {
         let mut dist_wall: f32 = 0.0;
         let mut hit = false;
         while !hit && dist_wall < MAX_DEPTH {
-            dist_wall += 0.1;
+            dist_wall += RAY_STEP;
 
             let xx = (player_x + norm_x * dist_wall) as u16;
             let yy = (player_y + norm_y * dist_wall) as u16;

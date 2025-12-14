@@ -17,6 +17,7 @@ use std::{
 
 const FOV: f32 = PI / 3.0;
 const MAX_DEPTH: f32 = 15.0;
+const RAY_STEP: f32 = 0.1;
 
 /// Wall block corner offset positions.
 const OFFSETS: [(u16, u16); 4] = [(0, 0), (0, 1), (1, 0), (1, 1)];
@@ -78,7 +79,7 @@ fn main() -> Result<()> {
             let mut hit = false; // Indicates 'ray hit'.
             let mut bound = false; // Indicates wall block boundary.
             while !hit && dist_wall < MAX_DEPTH {
-                dist_wall += 0.1;
+                dist_wall += RAY_STEP;
 
                 let xx = (p.pos.x + norm_x * dist_wall) as u16;
                 let yy = (p.pos.y + norm_y * dist_wall) as u16;

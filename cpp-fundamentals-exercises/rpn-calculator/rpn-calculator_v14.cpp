@@ -24,7 +24,7 @@ struct overload : Ts... {
 // template<typename... Ts> overload(Ts...) -> overload<Ts...>;
 
 /// The set of allowed operators.
-constexpr std::string OPERATORS = "+-*/%";
+constexpr std::string_view OPERATORS = "+-*/%";
 
 /// Calculation-related specific error type.
 class calculation_error final : public std::exception {
@@ -111,6 +111,7 @@ namespace {
 ///
 /// \returns The read token.
 ///
+/// \throws A `std::runtime_error` if the `en_US.UTF-8` locale cannot be found.
 /// \throws A `std::runtime_error` if input stream reading fails.
 ///
 [[nodiscard]] Token read_token() {
@@ -149,8 +150,8 @@ namespace {
 /// \note There is no overflow handling in place!
 ///
 /// \param lhs Left-hand side input value.
-/// \param lhs Right-hand side input value.
-/// \param lhs Operator.
+/// \param rhs Right-hand side input value.
+/// \param op Operator.
 ///
 /// \returns Calculation result.
 ///
