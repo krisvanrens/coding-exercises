@@ -9,7 +9,7 @@ The exercise code level and intermediate steps have been tuned accordingly.
 
 ### Raycasting
 
-![build status](https://github.com/krisvanrens/coding-exercises/actions/workflows/cpp-raycasting.yml/badge.svg)
+[![build status](https://github.com/krisvanrens/coding-exercises/actions/workflows/cpp-raycasting.yml/badge.svg)](https://github.com/krisvanrens/coding-exercises/actions/workflows/cpp-raycasting.yml)
 
 Build a simple [raycasting](https://en.wikipedia.org/wiki/Ray_casting) environment in C++20.
 
@@ -19,7 +19,7 @@ Build a simple [raycasting](https://en.wikipedia.org/wiki/Ray_casting) environme
 
 ### RPN calculator
 
-![build status](https://github.com/krisvanrens/coding-exercises/actions/workflows/cpp-rpn-calculator.yml/badge.svg)
+[![build status](https://github.com/krisvanrens/coding-exercises/actions/workflows/cpp-rpn-calculator.yml/badge.svg)](https://github.com/krisvanrens/coding-exercises/actions/workflows/cpp-rpn-calculator.yml)
 
 Build a simple [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Reverse_Polish_notation) calculator in C++20.
 
@@ -34,7 +34,7 @@ The exercise code level and intermediate steps have been tuned accordingly.
 
 ### Raycasting
 
-![build status](https://github.com/krisvanrens/coding-exercises/actions/workflows/rust-raycasting.yml/badge.svg)
+[![build status](https://github.com/krisvanrens/coding-exercises/actions/workflows/rust-raycasting.yml/badge.svg)](https://github.com/krisvanrens/coding-exercises/actions/workflows/rust-raycasting.yml)
 
 Build a simple [raycasting](https://en.wikipedia.org/wiki/Ray_casting) environment in Rust.
 
@@ -44,7 +44,7 @@ Build a simple [raycasting](https://en.wikipedia.org/wiki/Ray_casting) environme
 
 ### RPN calculator
 
-![build status](https://github.com/krisvanrens/coding-exercises/actions/workflows/rust-rpn-calculator.yml/badge.svg)
+[![build status](https://github.com/krisvanrens/coding-exercises/actions/workflows/rust-rpn-calculator.yml/badge.svg)](https://github.com/krisvanrens/coding-exercises/actions/workflows/rust-rpn-calculator.yml)
 
 Build a simple [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Reverse_Polish_notation) calculator in Rust.
 
