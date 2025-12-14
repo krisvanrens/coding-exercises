@@ -4,7 +4,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: gcc:13
+    container: gcc:15
     steps:
       - uses: actions/checkout@v4
       - name: Install CMake + dependencies
