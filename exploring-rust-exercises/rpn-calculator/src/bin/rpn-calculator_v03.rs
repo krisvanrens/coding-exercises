@@ -1,7 +1,7 @@
 use anyhow::Result;
 use std::io::{self, BufRead};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 enum Operator {
     Add,
     Sub,
@@ -48,16 +48,14 @@ fn read_token(source: &mut impl BufRead) -> Result<Token> {
     }
 }
 
-fn main() -> Result<()> {
+fn main() {
     let mut stdin = io::stdin().lock();
 
     while let Ok(t) = read_token(&mut stdin) {
-        if dbg!(t) == Token::Invalid("".to_owned()) {
+        if dbg!(t) == Token::Invalid(String::new()) {
             break; // Stop at the first empty string.
         }
     }
-
-    Ok(())
 }
 
 #[test]

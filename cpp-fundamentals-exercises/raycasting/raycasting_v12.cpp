@@ -261,7 +261,7 @@ int main() {
                 const float vx                                      = static_cast<float>(xx + tx) - p.x;
                 const float vy                                      = static_cast<float>(yy + ty) - p.y;
                 const float d                                       = std::sqrt((vx * vx) + (vy * vy));
-                corners.at(static_cast<std::size_t>((ty * 2) + tx)) = std::make_pair(d, ((norm_x * vx) / d) + ((norm_y * vy) / d));
+                corners.at(static_cast<std::size_t>((ty * 2) + tx)) = {d, ((norm_x * vx) / d) + ((norm_y * vy) / d)};
               }
             }
 

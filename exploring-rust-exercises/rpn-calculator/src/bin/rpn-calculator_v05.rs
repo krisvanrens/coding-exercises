@@ -1,7 +1,7 @@
 use anyhow::Result;
 use std::io::{self, BufRead};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 enum Operator {
     Add,
     Sub,
@@ -72,13 +72,13 @@ fn main() -> Result<()> {
         panic!("token 1 is not an operand!");
     };
 
-    m.push(operand1 as i128);
+    m.push(i128::from(operand1));
 
     let Token::Operand(operand2) = t2 else {
         panic!("token 2 is not an operand!");
     };
 
-    m.push(operand2 as i128);
+    m.push(i128::from(operand2));
 
     let Token::Operator(operator) = t3 else {
         panic!("token 3 is not an operator!");

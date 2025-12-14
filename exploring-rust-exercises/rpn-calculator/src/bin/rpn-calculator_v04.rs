@@ -1,7 +1,7 @@
 use anyhow::Result;
 use std::io::{self, BufRead};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 enum Operator {
     Add,
     Sub,
@@ -80,7 +80,7 @@ fn main() -> Result<()> {
 
     println!(
         "Result: {}",
-        calculate(operand1 as i128, operand2 as i128, operator)
+        calculate(i128::from(operand1), i128::from(operand2), operator)
     );
 
     Ok(())

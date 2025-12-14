@@ -1,8 +1,7 @@
 use std::io;
 
-#[allow(dead_code)] // Silence the compiler.
-
 /// Calculation token (as parsed from the user input).
+#[allow(dead_code)] // Silence the compiler.
 #[derive(Debug)]
 enum Token {
     Operand(i64),

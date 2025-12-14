@@ -12,7 +12,7 @@ The goal is to learn from this coding exercise, so just consider my approach to 
 
 ## Build requirements
 
-A compiler able to deal with C++20.
+A compiler able to deal with C++23.
 You might need a system-installed [{fmt} formatting library](https://github.com/fmtlib/fmt) if your standard library doesn't implement the `<format>` module/header.
 
 For this simple setup I used [Cmake](https://cmake.org/) as a build system.
@@ -40,7 +40,7 @@ Or, if you feel [brave](https://xn--rpa.cc/irl/term.html), write your own abstra
 This idea of a simple ASCII-based "FPS-like" environment in a couple of lines of code is not original.
 I took it from [javid9x: "One Lone Coder" on YouTube](http://www.youtube.com/javidx9).
 I also used [their code example](https://github.com/OneLoneCoder/CommandLineFPS) as the original inspiration for the 'bare bones version' (i.e. version 02 approximately).
-Their version was also in C++, but my versions are idiomatic C++20 and hopefully safer too.
+Their version was also in C++, but my versions are idiomatic C++23 and hopefully safer too.
 
 It's just great to see how far you can reach with just a little bit of code, an awesome example of how to have fun coding!
 
@@ -373,8 +373,7 @@ In ncurses the way this works is with colors, and color pairs (foreground/backgr
 The array of wall shades in the program acts as both a color index array _and_ a color pair array (i.e. the indexes for both are the same).
 
 The wall shade index array is part of the `Screen` abstraction, and is initialized in the constructor using the `iota` sequence generator.
-Unfortunately there's no range-based version of `std::iota` (or anything else in `<numeric>`) for C++20.
-That was all part of C++23.
+There's a range-based version of `std::iota` in C++23, but this is not implemented in all standard library implementations at the time of writing.
 Note that we have to offset the wall shade array with some number, not to overwrite the default base colors defined by ncurses itself.
 Then there's some ncurses shenanigans to initialize the shade colors using the right calls.
 To render the wall, we use the fully filled UTF-8 block character `\u2588` and shade it with a color that is calculated from the distance from the player.

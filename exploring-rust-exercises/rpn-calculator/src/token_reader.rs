@@ -11,6 +11,7 @@ impl<T: Read> Iterator for TokenReader<T> {
 
     fn next(&mut self) -> Option<Result<Token>> {
         match read_token(&mut self.reader) {
+            Ok(Token::Eoc) => None,
             Ok(t) => Some(Ok(t)),
             Err(e) => Some(Err(e)),
         }

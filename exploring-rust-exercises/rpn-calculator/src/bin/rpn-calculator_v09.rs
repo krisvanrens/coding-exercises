@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use rpn_calculator::{token_reader::IterTokens, *};
+use rpn_calculator::{calculate, token_reader::IterTokens, Token};
 use std::io;
 
 /// Calculator operation state.
@@ -10,8 +10,6 @@ enum State {
     Operand2,
     /// Expecting the operator of a binary calculation.
     Operator,
-    /// Final state of a calculation to display the result.
-    Result,
 }
 
 /// Break out of a loop with an error.
@@ -33,33 +31,25 @@ fn main() -> Result<()> {
         match s {
             State::Operand1 => match t {
                 Token::Operand(v) => {
-                    m.push(v as i128);
+                    m.push(i128::from(v));
                     s = State::Operand2;
                 }
                 Token::Operator(_) => desert!("expected operand 1, got operator"),
-                Token::Eoc => desert!("expected operand 1, got end-of-calculation"),
+                Token::Eoc => unreachable!("Eoc should never be yielded by iterator"),
                 Token::Invalid(i) => desert!("expected operand 1, got invalid token '{i}'"),
             },
             State::Operand2 => match t {
                 Token::Operand(v) => {
-                    m.push(v as i128);
+                    m.push(i128::from(v));
                     s = State::Operator;
                 }
-                Token::Eoc => {
-                    if got_operator {
-                        s = State::Result;
-                    } else {
-                        desert!("expected operand 2, got end-of-calculation");
-                    }
-                }
+                Token::Eoc => unreachable!("Eoc should never be yielded by iterator"),
                 Token::Operator(_) => desert!("expected operand 2, got operator"),
                 Token::Invalid(i) => desert!("expected operand 2, got invalid token '{i}'"),
             },
             State::Operator => match t {
                 Token::Operator(o) => {
-                    if m.len() != 2 {
-                        panic!("expected two elements in memory");
-                    }
+                    assert!(m.len() == 2, "expected two elements in memory");
 
                     let rhs = m.pop().unwrap();
                     let lhs = m.pop().unwrap();
@@ -69,19 +59,26 @@ fn main() -> Result<()> {
                     s = State::Operand2;
                 }
                 Token::Operand(_) => desert!("expected operator, got operand"),
-                Token::Eoc => desert!("expected operator, got end-of-calculation"),
+                Token::Eoc => unreachable!("Eoc should never be yielded by iterator"),
                 Token::Invalid(i) => desert!("expected operator, got invalid token '{i}'"),
             },
-            State::Result => {
-                if m.len() != 1 {
-                    panic!("expected one element in memory");
-                }
-
-                println!("{}", m.pop().unwrap());
-                return Ok(());
-            }
         }
     }
 
-    Ok(())
+    // Iterator ended - check if we have a valid final state.
+    match s {
+        State::Operand1 => desert!("expected operand 1, got end-of-calculation"),
+        State::Operand2 => {
+            if got_operator {
+                assert!(m.len() == 1, "expected one element in memory");
+
+                println!("{}", m.pop().unwrap());
+
+                Ok(())
+            } else {
+                desert!("expected operand 2, got end-of-calculation")
+            }
+        }
+        State::Operator => desert!("expected operator, got end-of-calculation"),
+    }
 }

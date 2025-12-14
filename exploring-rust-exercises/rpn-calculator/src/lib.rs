@@ -5,7 +5,7 @@ use std::io::BufRead;
 pub mod token_reader;
 
 /// Operator kind. The variant names are self-explanatory.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Operator {
     Add,
     Sub,
@@ -37,6 +37,14 @@ pub enum Token {
 /// # Return value
 ///
 /// A parsed token value, or an error if the source was unreadable or produced non-ASCII data.
+///
+/// # Errors
+///
+/// Returns an error if the input source cannot be read or if the input contains non-ASCII data.
+///
+/// # Panics
+///
+/// If the buffered reader cannot be read from properly.
 ///
 /// # Examples
 ///
@@ -102,6 +110,10 @@ pub fn read_token(source: &mut impl BufRead) -> Result<Token> {
 /// # Return value
 ///
 /// The calculation result, or an error upon overflow or division by zero.
+///
+/// # Errors
+///
+/// Returns an error if the calculation results in integer overflow or if division/modulo by zero is attempted.
 ///
 /// # Examples
 ///

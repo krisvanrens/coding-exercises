@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use std::io::{self, BufRead};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 enum Operator {
     Add,
     Sub,
@@ -92,7 +92,7 @@ fn main() -> Result<()> {
         match s {
             State::Operand1 => match t {
                 Token::Operand(v) => {
-                    m.push(v as i128);
+                    m.push(i128::from(v));
                     s = State::Operand2;
                 }
                 Token::Operator(_) => desert!("expected operand 1, got operator"),
@@ -101,7 +101,7 @@ fn main() -> Result<()> {
             },
             State::Operand2 => match t {
                 Token::Operand(v) => {
-                    m.push(v as i128);
+                    m.push(i128::from(v));
                     s = State::Operator;
                 }
                 Token::Eoc => {
@@ -116,9 +116,7 @@ fn main() -> Result<()> {
             },
             State::Operator => match t {
                 Token::Operator(o) => {
-                    if m.len() != 2 {
-                        panic!("expected two elements in memory");
-                    }
+                    assert!(m.len() == 2, "expected two elements in memory");
 
                     let rhs = m.pop().unwrap();
                     let lhs = m.pop().unwrap();
@@ -132,9 +130,7 @@ fn main() -> Result<()> {
                 Token::Invalid(i) => desert!("expected operator, got invalid token '{i}'"),
             },
             State::Result => {
-                if m.len() != 1 {
-                    panic!("expected one element in memory");
-                }
+                assert!(m.len() == 1, "expected one element in memory");
 
                 println!("{}", m.pop().unwrap());
                 break Ok(());
